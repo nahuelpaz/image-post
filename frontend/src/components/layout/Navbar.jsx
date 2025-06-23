@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -39,16 +41,18 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <h1 className="text-white text-xl font-medium">ImagePost</h1>
+              <Link to="/" className="text-white text-xl font-medium hover:text-gray-300 transition-colors">
+                ImagePost
+              </Link>
             </div>
           </div>
 
           {/* Navigation Links */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+              <Link to="/" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
                 Home
-              </a>
+              </Link>
               <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
                 Explore
               </a>
@@ -71,14 +75,7 @@ const Navbar = () => {
                   alt={`${user?.username}'s avatar`}
                 />
                 <span className="hidden md:block text-sm font-medium">{user?.username}</span>
-                <svg
-                  className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+                <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {/* Dropdown Menu */}
@@ -89,12 +86,13 @@ const Navbar = () => {
                     <p className="text-xs text-gray-400">{user?.email}</p>
                   </div>
                   
-                  <a
-                    href="#"
+                  <Link
+                    to={`/profile/${user?.username}`}
                     className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-900 transition-colors"
+                    onClick={() => setIsDropdownOpen(false)}
                   >
                     Profile
-                  </a>
+                  </Link>
                   <a
                     href="#"
                     className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-900 transition-colors"
@@ -126,9 +124,9 @@ const Navbar = () => {
       {/* Mobile menu */}
       <div className="md:hidden">
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-800">
-          <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
+          <Link to="/" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
             Home
-          </a>
+          </Link>
           <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
             Explore
           </a>
@@ -140,5 +138,6 @@ const Navbar = () => {
     </nav>
   );
 };
+
 
 export default Navbar;

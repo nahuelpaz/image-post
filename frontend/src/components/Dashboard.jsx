@@ -1,4 +1,5 @@
 import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import Navbar from './layout/Navbar';
 
 const Dashboard = () => {
@@ -22,7 +23,7 @@ const Dashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
+              <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors cursor-pointer">
                 <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
                   <svg
                     className="w-6 h-6 text-white"
@@ -46,7 +47,7 @@ const Dashboard = () => {
                 </p>
               </div>
 
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
+              <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors cursor-pointer">
                 <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
                   <svg
                     className="w-6 h-6 text-white"
@@ -70,7 +71,10 @@ const Dashboard = () => {
                 </p>
               </div>
 
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
+              <Link 
+                to={`/profile/${user?.username}`}
+                className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors cursor-pointer block"
+              >
                 <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
                   <svg
                     className="w-6 h-6 text-white"
@@ -92,7 +96,7 @@ const Dashboard = () => {
                 <p className="text-gray-400 text-sm">
                   Manage your account and preferences
                 </p>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
