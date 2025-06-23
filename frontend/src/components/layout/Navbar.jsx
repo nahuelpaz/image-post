@@ -1,0 +1,144 @@
+import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+
+const Navbar = () => {
+  const { user, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Avatar por defecto si no tiene imagen
+  const getAvatarSrc = () => {
+    if (user?.avatar) {
+      return user.avatar;
+    }
+    // Avatar por defecto con las iniciales del usuario
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.username || 'User')}&background=262626&color=ffffff&size=32`;
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsDropdownOpen(false);
+  };
+
+  return (
+    <nav className="bg-black border-b border-gray-800/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <h1 className="text-white text-xl font-medium">ImagePost</h1>
+            </div>
+          </div>
+
+          {/* Navigation Links */}
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-8">
+              <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+                Home
+              </a>
+              <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+                Explore
+              </a>
+              <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+                Create
+              </a>
+            </div>
+          </div>
+
+          {/* User Menu */}
+          <div className="flex items-center space-x-4">
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center space-x-2 text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black rounded-lg transition-all"
+              >
+                <img
+                  className="h-8 w-8 rounded-full border border-gray-700"
+                  src={getAvatarSrc()}
+                  alt={`${user?.username}'s avatar`}
+                />
+                <span className="hidden md:block text-sm font-medium">{user?.username}</span>
+                <svg
+                  className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-black border border-gray-800 rounded-lg shadow-lg py-1 z-50">
+                  <div className="px-4 py-2 border-b border-gray-800">
+                    <p className="text-sm text-white font-medium">{user?.username}</p>
+                    <p className="text-xs text-gray-400">{user?.email}</p>
+                  </div>
+                  
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-900 transition-colors"
+                  >
+                    Profile
+                  </a>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-900 transition-colors"
+                  >
+                    Settings
+                  </a>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-900 transition-colors"
+                  >
+                    Your Posts
+                  </a>
+                  
+                  <div className="border-t border-gray-800 mt-1">
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-gray-900 transition-colors"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      <div className="md:hidden">
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-800">
+          <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
+            Home
+          </a>
+          <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
+            Explore
+          </a>
+          <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
+            Create
+          </a>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
