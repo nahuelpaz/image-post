@@ -32,39 +32,40 @@ const RegisterForm = () => {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-white mb-2">Create account</h2>
-          <p className="text-gray-400">Join our community today</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="bg-red-900/20 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg">
-              {error}
-            </div>
-          )}
-
-          <AuthFields formData={formData} onChange={handleChange} showEmail={true} />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-white text-black py-2 px-4 rounded-lg font-medium hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Creating account...' : 'Create account'}
-          </button>
-
+        <div className="bg-black border border-neutral-900 rounded-2xl shadow-2xl p-8">
           <div className="text-center">
-            <span className="text-gray-400">Already have an account? </span>
-            <Link to="/login" className="text-white hover:text-gray-300 transition-colors">
-              Sign in
-            </Link>
+            <h2 className="text-3xl font-bold text-white mb-2">Create account</h2>
+            <p className="text-gray-400">Join our community today</p>
           </div>
-        </form>
+
+          <form onSubmit={handleSubmit} className="space-y-6 mt-6">
+            {error && (
+              <div className="bg-red-900/20 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
+            <AuthFields formData={formData} onChange={handleChange} showUsername={true} showEmail={true} />
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Creating account...' : 'Create account'}
+            </button>
+
+            <div className="text-center mt-4">
+              <span className="text-gray-400">Already have an account? </span>
+              <Link to="/login" className="text-blue-400 hover:underline transition-colors">
+                Sign in
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
-
 
 export default RegisterForm;
