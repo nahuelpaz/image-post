@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { postService } from '../services/postService';
-import { ImagePlus, FileArchive, Loader2, Tag, Text, Heading1, ArrowLeft } from 'lucide-react';
+import { ImagePlus, FileArchive, Loader2, Tag, Text, Heading1, ArrowLeft, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 const CreatePost = () => {
   const [title, setTitle] = useState('');
@@ -13,6 +13,8 @@ const CreatePost = () => {
   const [preview, setPreview] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [activePreviewIdx, setActivePreviewIdx] = useState(0);
   const navigate = useNavigate();
 
   const handleFilesChange = (e) => {
@@ -197,7 +199,14 @@ const CreatePost = () => {
               <div className="mb-2 text-gray-400 text-xs font-medium">Preview</div>
               <div className="flex gap-2 flex-wrap rounded-lg border border-neutral-800 bg-neutral-950 p-3">
                 {preview.map((src, i) => (
-                  <div key={i} className="w-20 h-20 rounded-lg overflow-hidden border border-neutral-800 bg-neutral-900 flex items-center justify-center">
+                  <div
+                    key={i}
+                    className="w-20 h-20 rounded-lg overflow-hidden border border-neutral-800 bg-neutral-900 flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-blue-500 transition"
+                    onClick={() => {
+                      setActivePreviewIdx(i);
+                      setPreviewModalOpen(true);
+                    }}
+                  >
                     <img src={src} alt="preview" className="w-full h-full object-cover" />
                   </div>
                 ))}
@@ -221,6 +230,78 @@ const CreatePost = () => {
           </button>
         </form>
       </div>
+
+      {/* Modal de vista previa en grande */}
+      {previewModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={() => setPreviewModalOpen(false)}
+        >
+          <div
+            className="relative flex items-center justify-center"
+            style={{ minWidth: 320, minHeight: 320 }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Cerrar */}
+            <button
+              className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 rounded-full p-2 z-10 border border-neutral-800 transition"
+              onClick={() => setPreviewModalOpen(false)}
+              aria-label="Close"
+              type="button"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+            {/* Carrousel */}
+            {preview.length > 1 && activePreviewIdx > 0 && (
+              <button
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 z-10"
+                onClick={() => setActivePreviewIdx(i => Math.max(i - 1, 0))}
+                aria-label="Previous image"
+                type="button"
+              >
+                <ChevronLeft className="w-7 h-7 text-white" />
+              </button>
+            )}
+            <img
+              src={preview[activePreviewIdx]}
+              alt="preview-large"
+              className="rounded-2xl object-contain bg-black shadow-2xl"
+              style={{
+                maxWidth: '100%',
+                maxHeight: 700,
+                width: 'auto',
+                height: 'auto',
+                display: 'block',
+                margin: '0 auto',
+                border: '4px solid #232323',
+                position: 'relative',
+                zIndex: 2
+              }}
+            />
+            {preview.length > 1 && activePreviewIdx < preview.length - 1 && (
+              <button
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 z-10"
+                onClick={() => setActivePreviewIdx(i => Math.min(i + 1, preview.length - 1))}
+                aria-label="Next image"
+                type="button"
+              >
+                <ChevronRight className="w-7 h-7 text-white" />
+              </button>
+            )}
+            {/* Indicadores */}
+            {preview.length > 1 && (
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
+                {preview.map((_, idx) => (
+                  <span
+                    key={idx}
+                    className={`block w-2.5 h-2.5 rounded-full ${activePreviewIdx === idx ? 'bg-white' : 'bg-gray-700'}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

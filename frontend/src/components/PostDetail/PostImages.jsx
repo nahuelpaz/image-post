@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
 
 const PostImages = ({
@@ -48,13 +47,7 @@ const PostImages = ({
       )}
 
       <div className="relative flex items-center justify-center w-full h-full">
-        <Link
-          to={`/profile/${authorUsername}`}
-          className="block w-full h-full"
-          tabIndex={-1}
-          aria-label={`Go to ${authorUsername}'s profile`}
-          style={{ position: 'absolute', inset: 0, zIndex: 1 }}
-        />
+        {/* Elimina el Link superpuesto */}
         <img
           src={images[activeImage]?.url || 'https://via.placeholder.com/900x900/000000/ffffff?text=Image'}
           alt={postTitle}
@@ -86,5 +79,6 @@ const PostImages = ({
     </div>
   );
 };
+
 
 export default PostImages;
