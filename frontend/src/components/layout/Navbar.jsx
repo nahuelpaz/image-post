@@ -56,9 +56,9 @@ const Navbar = () => {
               <Link to="/search" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
                 Search
               </Link>
-              <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+              <Link to="/explore" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
                 Explore
-              </a>
+              </Link>
               <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
                 Create
               </a>
@@ -133,9 +133,9 @@ const Navbar = () => {
           <Link to="/search" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
             Search
           </Link>
-          <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
+          <Link to="/explore" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
             Explore
-          </a>
+          </Link>
           <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
             Create
           </a>

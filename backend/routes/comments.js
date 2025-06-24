@@ -89,30 +89,29 @@ router.get('/:postId', async (req, res) => {
 router.delete('/:postId/:commentId', auth, async (req, res) => {
   try {
     const { postId, commentId } = req.params;
-
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
-    }
+    const post = await Post.findById(postId).populate('comments.user', '_id').populate('author', '_id');
+    if (!post) return res.status(404).json({ message: 'Post not found' });
 
     const comment = post.comments.id(commentId);
-    if (!comment) {
-      return res.status(404).json({ message: 'Comment not found' });
-    }
+    if (!comment) return res.status(404).json({ message: 'Comment not found' });
 
-    if (comment.user.toString() !== req.user.id && post.author.toString() !== req.user.id) {
+    // Permitir borrar si es el autor del comentario o el autor del post
+    const isCommentAuthor = comment.user._id.toString() === req.user.id;
+    const isPostAuthor = post.author._id.toString() === req.user.id;
+    if (!isCommentAuthor && !isPostAuthor) {
       return res.status(403).json({ message: 'Not authorized to delete this comment' });
     }
 
-    post.comments.pull(commentId);
+    // Elimina el comentario del array
+    post.comments = post.comments.filter(c => c._id.toString() !== commentId);
     await post.save();
 
-    res.json({ message: 'Comment deleted successfully' });
-
+    res.json({ message: 'Comment deleted' });
   } catch (error) {
     console.error('Delete comment error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 module.exports = router;
