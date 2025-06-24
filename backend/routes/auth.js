@@ -64,7 +64,7 @@ router.post('/register', [
 
 // @route   POST /api/auth/login
 router.post('/login', [
-  body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+  body('username').isLength({ min: 3 }).trim().withMessage('Please provide a valid username'),
   body('password').exists().withMessage('Password is required')
 ], async (req, res) => {
   try {
@@ -73,10 +73,10 @@ router.post('/login', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    // Find user by email
-    const user = await User.findOne({ email }).select('+password');
+    // Find user by username
+    const user = await User.findOne({ username }).select('+password');
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
