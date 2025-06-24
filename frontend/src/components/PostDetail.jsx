@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Heart, MessageCircle, ArrowLeft, Loader2, User, Send, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import PostImages from './PostDetail/PostImages';
+import PostInfo from './PostDetail/PostInfo';
+import PostComments from './PostDetail/PostComments';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -187,233 +190,30 @@ const PostDetail = () => {
       </div>
 
       <div className="w-full max-w-7xl mx-auto mt-12 mb-20 bg-black border border-neutral-900 rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden transition-all">
-        {/* Image section with download buttons */}
-        <div
-          className="md:w-[70%] bg-black flex items-center justify-center p-12 border-r border-neutral-900 relative"
-          style={{
-            minHeight: 700,
-            height: 700,
-            maxHeight: 700,
-          }}
-        >
-          {post.images && post.images.length > 0 && (
-            <>
-              {/* Download individual image */}
-              <button
-                onClick={() => handleDownloadImage(post.images[activeImage])}
-                className="absolute top-6 right-6 bg-black/70 hover:bg-black/90 rounded-full p-2 z-20 border border-neutral-800 transition"
-                title="Download this image"
-              >
-                <Download className="w-6 h-6 text-white" />
-              </button>
-              {/* Left arrow */}
-              {post.images.length > 1 && activeImage > 0 && (
-                <button
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 z-10"
-                  onClick={() => setActiveImage(i => Math.max(i - 1, 0))}
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="w-7 h-7 text-white" />
-                </button>
-              )}
-              {/* Right arrow */}
-              {post.images.length > 1 && activeImage < post.images.length - 1 && (
-                <button
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 z-10"
-                  onClick={() => setActiveImage(i => Math.min(i + 1, post.images.length - 1))}
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="w-7 h-7 text-white" />
-                </button>
-              )}
-              <div className="relative flex items-center justify-center w-full h-full">
-                <Link
-                  to={`/profile/${post.author?.username}`}
-                  className="block w-full h-full"
-                  tabIndex={-1}
-                  aria-label={`Go to ${post.author?.username}'s profile`}
-                  style={{ position: 'absolute', inset: 0, zIndex: 1 }}
-                />
-                <img
-                  src={post.images[activeImage]?.url || 'https://via.placeholder.com/900x900/000000/ffffff?text=Image'}
-                  alt={post.title}
-                  className="rounded-2xl object-contain bg-black shadow-2xl"
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    width: 'auto',
-                    height: 'auto',
-                    display: 'block',
-                    margin: '0 auto',
-                    border: '4px solid #232323',
-                    position: 'relative',
-                    zIndex: 2
-                  }}
-                />
-              </div>
-              {/* Indicators */}
-              {post.images.length > 1 && (
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-                  {post.images.map((_, idx) => (
-                    <span
-                      key={idx}
-                      className={`block w-2.5 h-2.5 rounded-full ${activeImage === idx ? 'bg-white' : 'bg-gray-700'}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-        {/* Info section with "Download all" button aligned with username */}
+        <PostImages
+          images={post.images}
+          activeImage={activeImage}
+          setActiveImage={setActiveImage}
+          handleDownloadImage={handleDownloadImage}
+        />
         <div className="md:w-[30%] flex flex-col p-12 gap-8 bg-black">
-          {/* Author + Download all */}
-          <div className="flex items-center justify-between gap-5">
-            <Link
-              to={`/profile/${post.author?.username}`}
-              className="flex items-center gap-5 group"
-              title={post.author?.username}
-            >
-              <div className="w-14 h-14 rounded-full bg-neutral-900 flex items-center justify-center overflow-hidden border-2 border-neutral-800 shadow-lg group-hover:ring-2 group-hover:ring-blue-600 transition">
-                {post.author?.avatar ? (
-                  <img src={post.author.avatar} alt={post.author.username} className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-8 h-8 text-gray-600" />
-                )}
-              </div>
-              <div>
-                {/* QUITA group-hover:underline */}
-                <div className="text-white font-medium text-base tracking-wide">
-                  {post.author?.username || 'Unknown'}
-                </div>
-                <div className="text-xs text-gray-600 font-normal tracking-wide">{new Date(post.createdAt).toLocaleDateString()}</div>
-              </div>
-            </Link>
-            {/* Download all images as ZIP */}
-            {post.images && post.images.length > 1 && (
-              <button
-                onClick={handleDownloadAll}
-                className="flex items-center gap-1 px-2 py-1 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded text-white text-xs font-medium transition whitespace-nowrap"
-                title="Download all images as ZIP"
-                style={{ minWidth: 0 }}
-              >
-                <Download className="w-4 h-4" />
-                Download all
-              </button>
-            )}
-          </div>
-          {/* Title & Description */}
-          <div>
-            <h1 className="text-lg font-semibold text-white mb-3 leading-tight tracking-wide">{post.title}</h1>
-            {post.description && (
-              <p className="text-gray-300 text-base mb-2 font-normal">{post.description}</p>
-            )}
-            {post.tags?.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
-                {post.tags.map((tag, i) => (
-                  <span key={i} className="bg-neutral-900 text-white px-3 py-1 rounded-full text-xs font-medium shadow border border-neutral-800 tracking-wide">{`#${tag}`}</span>
-                ))}
-              </div>
-            )}
-          </div>
-          {/* Likes & Comments */}
-          <div className="flex items-center gap-8 mt-2">
-            <button
-              onClick={handleLike}
-              disabled={likeLoading || !user}
-              className={`flex items-center gap-2 transition text-base font-medium focus:outline-none ${
-                isLiked ? 'text-pink-500' : 'text-white hover:text-pink-500'
-              }`}
-              title={user ? (isLiked ? 'Unlike' : 'Like') : 'Login to like'}
-            >
-              <Heart className={`w-6 h-6 ${isLiked ? 'fill-pink-500' : 'fill-none'}`} />
-              <span>{post.likes?.length || 0}</span>
-            </button>
-            <span className="flex items-center gap-2 text-white text-base font-medium">
-              <MessageCircle className="w-6 h-6" />
-              <span>{post.comments?.length || 0}</span>
-            </span>
-            <span className="text-gray-700 text-sm font-normal">{post.views || 0} views</span>
-          </div>
-          {/* Comments */}
-          <div className="mt-8">
-            <h3 className="text-base font-medium text-gray-400 mb-3 tracking-wide">
-              Comments
-              <span className="ml-2 text-white font-semibold">
-                ({post.comments?.length || 0})
-              </span>
-            </h3>
-            {/* Formulario para comentar */}
-            {user && (
-              <form
-                onSubmit={handleCommentSubmit}
-                className="flex items-center gap-2 mb-4"
-                autoComplete="off"
-              >
-                <input
-                  type="text"
-                  className="flex-1 px-4 py-2 rounded-full bg-neutral-900 text-white border border-neutral-800 focus:border-blue-500 outline-none text-sm"
-                  placeholder="Add a comment..."
-                  value={comment}
-                  onChange={e => setComment(e.target.value)}
-                  maxLength={200}
-                  disabled={commentLoading}
-                />
-                <button
-                  type="submit"
-                  className="p-2 rounded-full bg-blue-600 hover:bg-blue-700 transition disabled:opacity-60"
-                  disabled={commentLoading || !comment.trim()}
-                  aria-label="Send"
-                >
-                  {commentLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  ) : (
-                    <Send className="w-4 h-4 text-white" />
-                  )}
-                </button>
-              </form>
-            )}
-            {commentError && (
-              <div className="text-red-500 text-xs mb-2">{commentError}</div>
-            )}
-            <div className="space-y-4 max-h-56 overflow-y-auto pr-2">
-              {post.comments && post.comments.length > 0 ? (
-                [...post.comments]
-                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                  .map((c, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-3 bg-black/70 rounded-lg px-4 pt-3 pr-4 pl-4"
-                      style={{ marginTop: i === 0 ? '4px' : undefined }}
-                    >
-                      <Link
-                        to={`/profile/${c.user?.username}`}
-                        className="w-9 h-9 rounded-full bg-neutral-900 flex items-center justify-center overflow-hidden border border-neutral-800 hover:ring-2 hover:ring-blue-600 transition"
-                        title={c.user?.username}
-                      >
-                        {c.user?.avatar ? (
-                          <img src={c.user.avatar} alt={c.user.username} className="w-full h-full object-cover" />
-                        ) : (
-                          <User className="w-5 h-5 text-gray-600" />
-                        )}
-                      </Link>
-                      <div className="flex-1">
-                        <Link
-                          to={`/profile/${c.user?.username}`}
-                          className="text-xs text-white font-medium tracking-wide hover:underline"
-                        >
-                          {c.user?.username || 'User'}
-                        </Link>
-                        <div className="text-sm text-gray-300 font-normal">{c.text}</div>
-                        <div className="text-[10px] text-gray-700 font-normal">{new Date(c.createdAt).toLocaleString()}</div>
-                      </div>
-                    </div>
-                  ))
-              ) : (
-                <div className="text-gray-700 text-xs font-normal">No comments yet.</div>
-              )}
-            </div>
-          </div>
+          <PostInfo
+            post={post}
+            user={user}
+            isLiked={isLiked}
+            likeLoading={likeLoading}
+            handleLike={handleLike}
+            handleDownloadAll={handleDownloadAll}
+          />
+          <PostComments
+            post={post}
+            user={user}
+            comment={comment}
+            setComment={setComment}
+            commentLoading={commentLoading}
+            commentError={commentError}
+            handleCommentSubmit={handleCommentSubmit}
+          />
         </div>
       </div>
     </div>
