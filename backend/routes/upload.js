@@ -63,30 +63,40 @@ router.post('/single', auth, upload.single('image'), async (req, res) => {
 });
 
 // @route   POST /api/upload/multiple
-router.post('/multiple', auth, upload.array('images', 20), async (req, res) => {
+router.post('/multiple', auth, upload.array('images', 10), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: 'No image files provided' });
     }
 
-    const images = req.files.map(file => ({
-      url: file.path,
-      publicId: file.filename,
-      filename: file.originalname,
-      size: file.bytes,
-      width: file.width,
-      height: file.height,
-      format: file.format
-    }));
+    // Suponiendo que subes a Cloudinary y tienes los resultados en results
+    // results debe ser un array de objetos con todos los campos requeridos
+    const results = await Promise.all(
+      req.files.map(async (file) => {
+        // Aquí subes cada archivo a Cloudinary (o tu storage)
+        const uploadRes = await cloudinary.uploader.upload(file.path, {
+          folder: 'posts'
+        });
+        return {
+          url: uploadRes.secure_url,
+          publicId: uploadRes.public_id,
+          filename: uploadRes.original_filename + '.' + uploadRes.format,
+          size: uploadRes.bytes,
+          width: uploadRes.width,
+          height: uploadRes.height,
+          format: uploadRes.format
+        };
+      })
+    );
 
     res.json({
-      message: `${images.length} images uploaded successfully`,
-      images
+      message: `${results.length} images uploaded successfully`,
+      images: results
     });
 
   } catch (error) {
-    console.error('Multiple upload error:', error);
-    res.status(500).json({ message: 'Upload failed' });
+    console.error('Upload multiple images error:', error);
+    res.status(500).json({ message: 'Error uploading images' });
   }
 });
 

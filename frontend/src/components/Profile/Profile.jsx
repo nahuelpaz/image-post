@@ -100,8 +100,8 @@ const Profile = () => {
     );
   }
 
-  // Mostrar advertencia si falta nombre o avatar
-  if (!profile.username || !profile.avatar) {
+  // Mostrar advertencia si falta nombre (pero NO por avatar vacío)
+  if (!profile.username) {
     return (
       <div className="min-h-screen bg-black">
         <Navbar />
