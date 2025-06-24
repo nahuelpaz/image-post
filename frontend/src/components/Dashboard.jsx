@@ -124,7 +124,9 @@ const Dashboard = () => {
 
             {/* Ejemplo: mostrar tu propio UserCard en el dashboard */}
             <div className="mt-16 max-w-xs mx-auto">
-              <UserCard user={user} />
+              <Link to={`/profile/${user?.username}`} className="block group">
+                <UserCard user={user} />
+              </Link>
             </div>
           </div>
         </div>

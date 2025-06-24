@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import UserCard from './UserCard';
 
@@ -55,7 +56,9 @@ const SearchPage = () => {
                 <h2 className="text-white text-xl mb-4">Users</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
                   {users.map(user => (
-                    <UserCard key={user._id} user={user} />
+                    <Link to={`/profile/${user.username}`} className="block group" key={user._id}>
+                      <UserCard user={user} />
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -72,7 +75,6 @@ const SearchPage = () => {
     </div>
   );
 };
-
 
 
 
