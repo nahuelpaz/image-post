@@ -1,10 +1,8 @@
-import { Link } from 'react-router-dom';
 import { User } from 'lucide-react';
 
 const UserCard = ({ user }) => (
-  <Link
-    to={`/profile/${user.username}`}
-    className="group bg-black border border-neutral-900 rounded-2xl shadow-xl flex flex-col items-center justify-center p-6 hover:border-white transition-colors cursor-pointer relative"
+  <div
+    className="group bg-black border border-neutral-900 rounded-2xl shadow-xl flex flex-col items-center justify-center p-6 hover:border-white transition-colors cursor-default relative"
   >
     <div className="w-20 h-20 rounded-full bg-neutral-900 flex items-center justify-center overflow-hidden border-2 border-neutral-800 shadow group-hover:ring-2 group-hover:ring-white transition mb-3">
       {user.avatar ? (
@@ -29,12 +27,12 @@ const UserCard = ({ user }) => (
       </span>
       <span className="text-xs text-gray-400">
         <span className="font-semibold text-white">
-          {/* Corrige la cantidad de posts */}
           {user.postsCount ?? (Array.isArray(user.posts) ? user.posts.length : 0)}
         </span> posts
       </span>
     </div>
-  </Link>
+  </div>
 );
+
 
 export default UserCard;
