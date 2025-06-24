@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Navbar from '../layout/Navbar';
+import UserCard from './UserCard';
 
 const SearchPage = () => {
   const [query, setQuery] = useState('');
@@ -54,21 +55,7 @@ const SearchPage = () => {
                 <h2 className="text-white text-xl mb-4">Users</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
                   {users.map(user => (
-                    <a
-                      key={user._id}
-                      href={`/profile/${user.username}`}
-                      className="flex flex-col items-center bg-[#18181b] rounded-lg p-4 border border-gray-800 hover:bg-[#232329] transition"
-                    >
-                      <img
-                        src={user.avatar}
-                        alt={user.username}
-                        className="w-16 h-16 rounded-full object-cover border border-gray-700 mb-2"
-                      />
-                      <span className="text-white font-medium">{user.username}</span>
-                      {user.bio && (
-                        <span className="text-gray-400 text-sm mt-1 text-center">{user.bio}</span>
-                      )}
-                    </a>
+                    <UserCard key={user._id} user={user} />
                   ))}
                 </div>
               </div>
@@ -85,6 +72,8 @@ const SearchPage = () => {
     </div>
   );
 };
+
+
 
 
 export default SearchPage;

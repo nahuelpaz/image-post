@@ -19,6 +19,7 @@ router.get('/search', async (req, res) => {
 
     const skip = (page - 1) * limit;
     
+    // Busca usuarios y también cuenta los posts públicos de cada uno
     const users = await User.find({
       $or: [
         { username: { $regex: q, $options: 'i' } },
@@ -26,9 +27,19 @@ router.get('/search', async (req, res) => {
       ],
       isActive: true
     })
-    .select('username email avatar bio followers following')
+    .select('username email avatar bio followers following posts')
     .skip(skip)
     .limit(parseInt(limit));
+
+    // Para cada usuario, cuenta los posts públicos y agrega postsCount
+    const usersWithPostsCount = await Promise.all(users.map(async user => {
+      const postsCount = await Post.countDocuments({ author: user._id, isPublic: true });
+      return {
+        ...user.toObject(),
+        followersCount: user.followers.length,
+        postsCount
+      };
+    }));
 
     const total = await User.countDocuments({
       $or: [
@@ -39,7 +50,7 @@ router.get('/search', async (req, res) => {
     });
 
     res.json({
-      users,
+      users: usersWithPostsCount,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),

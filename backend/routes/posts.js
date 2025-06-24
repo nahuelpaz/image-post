@@ -89,9 +89,11 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Post not found' });
     }
 
-    // Increment views
-    post.views += 1;
-    await post.save();
+    // Solo suma view si countView !== 'false'
+    if (req.query.countView !== 'false') {
+      post.views += 1;
+      await post.save();
+    }
 
     res.json({ post });
 

@@ -50,11 +50,13 @@ const ProfilePosts = ({ posts, loading, hasMore, onLoadMore }) => {
                 <div className="flex gap-4 text-white font-semibold">
                   <span className="flex items-center gap-1">
                     <Heart className="w-4 h-4" />
-                    {post.likesCount || 0}
+                    {/* Usa la longitud real del array de likes */}
+                    {Array.isArray(post.likes) ? post.likes.length : (post.likesCount || 0)}
                   </span>
                   <span className="flex items-center gap-1">
                     <MessageCircle className="w-4 h-4" />
-                    {post.commentsCount || 0}
+                    {/* Usa la longitud real del array de comentarios */}
+                    {Array.isArray(post.comments) ? post.comments.length : (post.commentsCount || 0)}
                   </span>
                 </div>
               </div>

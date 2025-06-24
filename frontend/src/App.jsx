@@ -6,6 +6,8 @@ import Dashboard from './components/Dashboard';
 import Profile from './components/Profile/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
 import SearchPage from './components/Search/SearchPage';
+import CreatePost from './components/CreatePost';
+import PostDetail from './components/PostDetail';
 
 function App() {
   return (
@@ -32,6 +34,22 @@ function App() {
               } 
             />
             <Route path="/search" element={<SearchPage />} />
+            <Route 
+              path="/create-post" 
+              element={
+                <ProtectedRoute>
+                  <CreatePost />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/post/:id" 
+              element={
+                <ProtectedRoute>
+                  <PostDetail />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
