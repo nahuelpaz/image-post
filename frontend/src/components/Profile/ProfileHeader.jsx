@@ -67,7 +67,6 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
     setShowFollowing(true);
   };
 
-  // Fix counters for both own and other profiles
   const followersCount = typeof profile.followersCount === 'number'
     ? profile.followersCount
     : Array.isArray(profile.followers)
@@ -193,7 +192,5 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
     </div>
   );
 };
-
-
 
 export default ProfileHeader;

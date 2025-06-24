@@ -254,7 +254,8 @@ router.post('/bulk', async (req, res) => {
       return res.status(400).json({ message: 'No user IDs provided' });
     }
     const users = await User.find({ _id: { $in: ids } })
-      .select('_id username avatar');
+      .select('_id username avatar bio');
+
     res.json({ users });
   } catch (error) {
     console.error('Bulk user fetch error:', error);

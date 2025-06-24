@@ -53,6 +53,9 @@ const Navbar = () => {
               <Link to="/" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
                 Home
               </Link>
+              <Link to="/search" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+                Search
+              </Link>
               <a href="#" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors">
                 Explore
               </a>
@@ -126,6 +129,9 @@ const Navbar = () => {
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-800">
           <Link to="/" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
             Home
+          </Link>
+          <Link to="/search" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
+            Search
           </Link>
           <a href="#" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
             Explore

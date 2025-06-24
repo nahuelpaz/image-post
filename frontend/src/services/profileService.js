@@ -11,7 +11,6 @@ const getAuthHeaders = () => {
 export const profileService = {
   // Get user profile by username
   getUserProfile: async (username) => {
-    // Incluye el token para que el backend sepa quién es el usuario autenticado
     const token = localStorage.getItem('token');
     const response = await fetch(`${API_BASE_URL}/users/${username}`, {
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},
@@ -20,13 +19,11 @@ export const profileService = {
       throw new Error('Failed to get user profile');
     }
     const data = await response.json();
-    console.log('getUserProfile response:', data);
+    // Normaliza la respuesta: combina user y stats en un solo objeto plano
     if (data.user) {
-      // Usa isFollowing solo si viene del backend
       return {
         ...data.user,
         ...data.stats,
-        isFollowing: data.user.isFollowing,
       };
     }
     return data;
