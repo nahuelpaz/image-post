@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
 
-const PostImages = ({ images, activeImage, setActiveImage, handleDownloadImage }) => {
+const PostImages = ({
+  images,
+  activeImage,
+  setActiveImage,
+  handleDownloadImage,
+  authorUsername,
+  postTitle
+}) => {
   if (!images || images.length === 0) return null;
   return (
     <div
@@ -12,7 +19,6 @@ const PostImages = ({ images, activeImage, setActiveImage, handleDownloadImage }
         maxHeight: 700,
       }}
     >
-      {/* Download individual image */}
       <button
         onClick={() => handleDownloadImage(images[activeImage])}
         className="absolute top-6 right-6 bg-black/70 hover:bg-black/90 rounded-full p-2 z-20 border border-neutral-800 transition"
@@ -20,7 +26,7 @@ const PostImages = ({ images, activeImage, setActiveImage, handleDownloadImage }
       >
         <Download className="w-6 h-6 text-white" />
       </button>
-      {/* Left arrow */}
+
       {images.length > 1 && activeImage > 0 && (
         <button
           className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 z-10"
@@ -30,7 +36,7 @@ const PostImages = ({ images, activeImage, setActiveImage, handleDownloadImage }
           <ChevronLeft className="w-7 h-7 text-white" />
         </button>
       )}
-      {/* Right arrow */}
+
       {images.length > 1 && activeImage < images.length - 1 && (
         <button
           className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 z-10"
@@ -40,17 +46,18 @@ const PostImages = ({ images, activeImage, setActiveImage, handleDownloadImage }
           <ChevronRight className="w-7 h-7 text-white" />
         </button>
       )}
+
       <div className="relative flex items-center justify-center w-full h-full">
         <Link
-          to="#"
+          to={`/profile/${authorUsername}`}
           className="block w-full h-full"
           tabIndex={-1}
-          aria-label="Go to author's profile"
+          aria-label={`Go to ${authorUsername}'s profile`}
           style={{ position: 'absolute', inset: 0, zIndex: 1 }}
         />
         <img
           src={images[activeImage]?.url || 'https://via.placeholder.com/900x900/000000/ffffff?text=Image'}
-          alt="post"
+          alt={postTitle}
           className="rounded-2xl object-contain bg-black shadow-2xl"
           style={{
             maxWidth: '100%',
@@ -65,7 +72,7 @@ const PostImages = ({ images, activeImage, setActiveImage, handleDownloadImage }
           }}
         />
       </div>
-      {/* Indicators */}
+
       {images.length > 1 && (
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
           {images.map((_, idx) => (

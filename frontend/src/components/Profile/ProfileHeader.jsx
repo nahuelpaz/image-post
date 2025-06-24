@@ -135,12 +135,6 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
             <p className="text-gray-300 leading-relaxed">{profile.bio}</p>
           </div>
         )}
-
-        {profile?.email && isOwnProfile && (
-          <div className="mb-4">
-            <span className="text-gray-500 text-sm">{profile.email}</span>
-          </div>
-        )}
       </div>
 
       {showFollowers && (
@@ -162,5 +156,6 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
     </div>
   );
 };
+
 
 export default ProfileHeader;

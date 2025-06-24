@@ -8,6 +8,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import SearchPage from './components/Search/SearchPage';
 import CreatePost from './components/CreatePost';
 import PostDetail from './components/PostDetail';
+import TagPage from './components/Tags/TagPage';
+import Explore from './components/Explore';
 
 function App() {
   return (
@@ -50,6 +52,8 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route path="/tags/:tag" element={<TagPage />} />
+            <Route path="/explore" element={<Explore />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>

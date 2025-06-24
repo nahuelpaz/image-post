@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Heart, MessageCircle, ArrowLeft, Loader2, User, Send, ChevronLeft, ChevronRight, Download, MoreVertical } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import EditTextModal from './EditTextModal';
 import PostImages from './PostDetail/PostImages';
 import PostInfo from './PostDetail/PostInfo';
 import PostComments from './PostDetail/PostComments';
+import ConfirmDeleteModal from './ConfirmDeleteModal';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -23,6 +25,14 @@ const PostDetail = () => {
   const [commentLoading, setCommentLoading] = useState(false);
   const [commentError, setCommentError] = useState('');
   const [activeImage, setActiveImage] = useState(0);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editData, setEditData] = useState({ title: '', description: '', tags: '' });
+  const [editError, setEditError] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteCommentId, setDeleteCommentId] = useState(null);
+  const menuRef = useRef();
 
   // Determina si el usuario actual ya dio like
   const isLiked = user && post?.likes?.some(like => {
@@ -31,6 +41,11 @@ const PostDetail = () => {
     }
     return like === user._id || like === user.id;
   });
+
+  // Helper para comparar IDs como string
+  const isAuthor = user && post?.author && (
+    String(post.author._id || post.author.id) === String(user._id || user.id)
+  );
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -144,6 +159,117 @@ const PostDetail = () => {
     saveAs(content, `${post.title?.replace(/\s+/g, '_') || 'images'}.zip`);
   };
 
+  const handleEditClick = () => {
+    setEditData({
+      title: post.title || '',
+      description: post.description || '',
+      tags: (post.tags || []).join(', ')
+    });
+    setEditError('');
+    setShowEditModal(true);
+    setShowMenu(false);
+  };
+
+  const handleEditFieldChange = (name, value) => {
+    setEditData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setEditError('');
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/posts/${post._id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: editData.title,
+          description: editData.description,
+          tags: editData.tags.split(',').map(t => t.trim()).filter(Boolean)
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || 'Failed to update post');
+      }
+      const updated = await res.json();
+      setPost(updated.post);
+      setShowEditModal(false);
+    } catch (err) {
+      setEditError(err.message || 'Failed to update post');
+    }
+  };
+
+  // Borrar post con confirmación modal
+  const handleDelete = async () => {
+    setDeleteLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/posts/${post._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || 'Failed to delete post');
+      }
+      navigate('/');
+    } catch (err) {
+      alert(err.message || 'Failed to delete post');
+    } finally {
+      setDeleteLoading(false);
+      setShowDeleteModal(false);
+    }
+  };
+
+  // Borrar comentario con confirmación modal
+  const handleDeleteComment = async () => {
+    if (!deleteCommentId) return;
+    setDeleteLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE_URL}/comments/${post._id}/${deleteCommentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || 'Failed to delete comment');
+      }
+            // Recarga comentarios sin sumar view
+      const updated = await fetch(`${API_BASE_URL}/posts/${post._id}?countView=false`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      });
+      if (updated.ok) {
+        const updatedData = await updated.json();
+        setPost(updatedData.post);
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to delete comment');
+    } finally {
+      setDeleteLoading(false);
+      setDeleteCommentId(null);
+    }
+  };
+
+  // Cierra el menú si se hace click fuera
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false);
+      }
+    };
+    if (showMenu) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showMenu]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen w-full bg-black">
@@ -195,15 +321,23 @@ const PostDetail = () => {
           activeImage={activeImage}
           setActiveImage={setActiveImage}
           handleDownloadImage={handleDownloadImage}
+          authorUsername={post.author?.username}
+          postTitle={post.title}
         />
         <div className="md:w-[30%] flex flex-col p-12 gap-8 bg-black">
           <PostInfo
             post={post}
             user={user}
+            isAuthor={isAuthor}
+            menuRef={menuRef}
+            showMenu={showMenu}
+            setShowMenu={setShowMenu}
+            handleEditClick={handleEditClick}
+            handleDeleteClick={() => setShowDeleteModal(true)}
+            handleDownloadAll={handleDownloadAll}
             isLiked={isLiked}
             likeLoading={likeLoading}
             handleLike={handleLike}
-            handleDownloadAll={handleDownloadAll}
           />
           <PostComments
             post={post}
@@ -213,12 +347,54 @@ const PostDetail = () => {
             commentLoading={commentLoading}
             commentError={commentError}
             handleCommentSubmit={handleCommentSubmit}
+            onDeleteComment={commentId => setDeleteCommentId(commentId)}
+            isPostAuthor={isAuthor}
           />
         </div>
       </div>
+      {/* Modal para editar post */}
+      {showEditModal && (
+        <EditTextModal
+          title="Edit Post"
+          fields={[
+            { name: 'title', label: 'Title', maxLength: 100, required: true },
+            { name: 'description', label: 'Description', type: 'textarea', maxLength: 500 },
+            { name: 'tags', label: 'Tags (comma separated)', maxLength: 100 }
+          ]}
+          values={editData}
+          onChange={handleEditFieldChange}
+          onClose={() => setShowEditModal(false)}
+          onSubmit={handleEditSubmit}
+          loading={false}
+          error={editError}
+          submitLabel="Save"
+        />
+      )}
+      {/* Modal de confirmación para borrar post */}
+      <ConfirmDeleteModal
+        open={showDeleteModal}
+        title="Delete Post"
+        message="Are you sure you want to permanently delete this post? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        loading={deleteLoading}
+      />
+      {/* Modal de confirmación para borrar comentario */}
+      <ConfirmDeleteModal
+        open={!!deleteCommentId}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onCancel={() => setDeleteCommentId(null)}
+        onConfirm={handleDeleteComment}
+        loading={deleteLoading}
+      />
     </div>
   );
 };
 
-
 export default PostDetail;
+

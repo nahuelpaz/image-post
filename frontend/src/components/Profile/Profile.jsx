@@ -35,7 +35,6 @@ const Profile = () => {
       const profileData = isOwnProfile 
         ? await profileService.getCurrentUser()
         : await profileService.getUserProfile(targetUsername);
-      console.log('Loaded profile data:', profileData); // <-- Agregado para depuración
       setProfile(profileData);
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -145,7 +144,6 @@ const Profile = () => {
     </div>
   );
 };
-
 
 
 export default Profile;

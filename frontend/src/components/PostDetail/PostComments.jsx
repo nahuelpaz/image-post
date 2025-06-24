@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { User, Loader2, Send } from 'lucide-react';
+import { User, Loader2, Send, Trash2 } from 'lucide-react';
 
 const PostComments = ({
   post,
@@ -9,6 +9,8 @@ const PostComments = ({
   commentLoading,
   commentError,
   handleCommentSubmit,
+  onDeleteComment,
+  isPostAuthor
 }) => (
   <div className="mt-8">
     <h3 className="text-base font-medium text-gray-400 mb-3 tracking-wide">
@@ -53,35 +55,51 @@ const PostComments = ({
       {post.comments && post.comments.length > 0 ? (
         [...post.comments]
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .map((c, i) => (
-            <div
-              key={i}
-              className="flex items-start gap-3 bg-black/70 rounded-lg px-4 pt-3 pr-4 pl-4"
-              style={{ marginTop: i === 0 ? '4px' : undefined }}
-            >
-              <Link
-                to={`/profile/${c.user?.username}`}
-                className="w-9 h-9 rounded-full bg-neutral-900 flex items-center justify-center overflow-hidden border border-neutral-800 hover:ring-2 hover:ring-blue-600 transition"
-                title={c.user?.username}
+          .map((c, i) => {
+            // Helper para comparar IDs como string
+            const isCommentAuthor =
+              user &&
+              (String(c.user?._id || c.user?.id) === String(user._id || user.id));
+            const canDelete = isCommentAuthor || isPostAuthor;
+            return (
+              <div
+                key={i}
+                className="flex items-start gap-3 bg-black/70 rounded-lg px-4 pt-3 pr-4 pl-4 relative"
+                style={{ marginTop: i === 0 ? '4px' : undefined }}
               >
-                {c.user?.avatar ? (
-                  <img src={c.user.avatar} alt={c.user.username} className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-5 h-5 text-gray-600" />
-                )}
-              </Link>
-              <div className="flex-1">
                 <Link
                   to={`/profile/${c.user?.username}`}
-                  className="text-xs text-white font-medium tracking-wide hover:underline"
+                  className="w-9 h-9 rounded-full bg-neutral-900 flex items-center justify-center overflow-hidden border border-neutral-800 hover:ring-2 hover:ring-blue-600 transition"
+                  title={c.user?.username}
                 >
-                  {c.user?.username || 'User'}
+                  {c.user?.avatar ? (
+                    <img src={c.user.avatar} alt={c.user.username} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-5 h-5 text-gray-600" />
+                  )}
                 </Link>
-                <div className="text-sm text-gray-300 font-normal">{c.text}</div>
-                <div className="text-[10px] text-gray-700 font-normal">{new Date(c.createdAt).toLocaleString()}</div>
+                <div className="flex-1">
+                  <Link
+                    to={`/profile/${c.user?.username}`}
+                    className="text-xs text-white font-medium tracking-wide hover:underline"
+                  >
+                    {c.user?.username || 'User'}
+                  </Link>
+                  <div className="text-sm text-gray-300 font-normal">{c.text}</div>
+                  <div className="text-[10px] text-gray-700 font-normal">{new Date(c.createdAt).toLocaleString()}</div>
+                </div>
+                {canDelete && (
+                  <button
+                    className="absolute top-2 right-2 p-1 rounded hover:bg-neutral-800 transition"
+                    title="Delete comment"
+                    onClick={() => onDeleteComment(c._id)}
+                  >
+                    <Trash2 className="w-4 h-4 text-red-400" />
+                  </button>
+                )}
               </div>
-            </div>
-          ))
+            );
+          })
       ) : (
         <div className="text-gray-700 text-xs font-normal">No comments yet.</div>
       )}
