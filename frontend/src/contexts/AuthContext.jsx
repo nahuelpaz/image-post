@@ -53,8 +53,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.login(credentials);
       localStorage.setItem('token', response.token);
-      dispatch({ type: 'LOGIN_SUCCESS', payload: response.user });
-      return response;
+      // Obtener usuario completo después de login
+      const fullUser = await authService.getCurrentUser();
+      dispatch({ type: 'LOGIN_SUCCESS', payload: fullUser });
+      return { ...response, user: fullUser };
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE', payload: error.message });
       throw error;
@@ -66,8 +68,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.register(userData);
       localStorage.setItem('token', response.token);
-      dispatch({ type: 'LOGIN_SUCCESS', payload: response.user });
-      return response;
+      // Obtener usuario completo después de registro
+      const fullUser = await authService.getCurrentUser();
+      dispatch({ type: 'LOGIN_SUCCESS', payload: fullUser });
+      return { ...response, user: fullUser };
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE', payload: error.message });
       throw error;
