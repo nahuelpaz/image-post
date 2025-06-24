@@ -243,7 +243,7 @@ const PostDetail = () => {
         const err = await res.json();
         throw new Error(err.message || 'Failed to delete comment');
       }
-      // Recarga comentarios sin sumar view
+            // Recarga comentarios sin sumar view
       const updated = await fetch(`${API_BASE_URL}/posts/${post._id}?countView=false`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       });
@@ -396,5 +396,5 @@ const PostDetail = () => {
   );
 };
 
-
 export default PostDetail;
+

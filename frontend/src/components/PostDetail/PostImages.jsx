@@ -26,6 +26,7 @@ const PostImages = ({
       >
         <Download className="w-6 h-6 text-white" />
       </button>
+
       {images.length > 1 && activeImage > 0 && (
         <button
           className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 z-10"
@@ -35,6 +36,7 @@ const PostImages = ({
           <ChevronLeft className="w-7 h-7 text-white" />
         </button>
       )}
+
       {images.length > 1 && activeImage < images.length - 1 && (
         <button
           className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-2 z-10"
@@ -44,6 +46,7 @@ const PostImages = ({
           <ChevronRight className="w-7 h-7 text-white" />
         </button>
       )}
+
       <div className="relative flex items-center justify-center w-full h-full">
         <Link
           to={`/profile/${authorUsername}`}
@@ -69,6 +72,7 @@ const PostImages = ({
           }}
         />
       </div>
+
       {images.length > 1 && (
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
           {images.map((_, idx) => (

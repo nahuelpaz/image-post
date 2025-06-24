@@ -107,7 +107,4 @@ const PostComments = ({
   </div>
 );
 
-
-
-
 export default PostComments;

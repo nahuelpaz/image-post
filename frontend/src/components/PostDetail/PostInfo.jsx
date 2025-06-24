@@ -33,7 +33,9 @@ const PostInfo = ({
           <div className="text-white font-medium text-base tracking-wide">
             {post.author?.username || 'Unknown'}
           </div>
-          <div className="text-xs text-gray-600 font-normal tracking-wide">{new Date(post.createdAt).toLocaleDateString()}</div>
+          <div className="text-xs text-gray-600 font-normal tracking-wide">
+            {new Date(post.createdAt).toLocaleDateString()}
+          </div>
         </div>
       </Link>
       <div className="flex items-center gap-2">
@@ -78,7 +80,9 @@ const PostInfo = ({
       </div>
     </div>
     <div>
-      <h1 className="text-lg font-semibold text-white mb-3 leading-tight tracking-wide">{post.title}</h1>
+      <h1 className="text-lg font-semibold text-white mb-3 leading-tight tracking-wide">
+        {post.title}
+      </h1>
       {post.description && (
         <p className="text-gray-300 text-base mb-2 font-normal">{post.description}</p>
       )}
