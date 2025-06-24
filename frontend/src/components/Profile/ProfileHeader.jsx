@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Camera, Loader2 } from 'lucide-react';
 import { profileService } from '../../services/profileService';
 import FollowersModal from './FollowersModal';
+import ProfileAvatar from './ProfileAvatar';
+import ProfileStats from './ProfileStats';
 
 const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile }) => {
   const [avatarLoading, setAvatarLoading] = useState(false);
@@ -88,29 +89,13 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
   return (
     <div className="flex flex-col md:flex-row gap-8 md:gap-16 mb-16 py-8 border-b border-gray-800">
       <div className="flex-shrink-0 text-center md:text-left">
-        <div className="relative w-32 h-32 mx-auto md:mx-0">
-          <img 
-            src={getAvatarSrc()} 
-            alt={profile?.username}
-            className="w-full h-full rounded-full object-cover border border-gray-700"
-          />
-          {isOwnProfile && (
-            <label className="absolute bottom-1 right-1 w-8 h-8 bg-white text-black rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleAvatarChange}
-                disabled={avatarLoading}
-                className="hidden"
-              />
-              {avatarLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Camera className="w-4 h-4" />
-              )}
-            </label>
-          )}
-        </div>
+        <ProfileAvatar
+          avatarSrc={getAvatarSrc()}
+          username={profile?.username}
+          isOwnProfile={isOwnProfile}
+          avatarLoading={avatarLoading}
+          handleAvatarChange={handleAvatarChange}
+        />
       </div>
 
       <div className="flex-1 pt-4 text-center md:text-left">
@@ -137,28 +122,13 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
           )}
         </div>
 
-        <div className="flex justify-center md:justify-start gap-8 mb-6">
-          <button
-            className="text-center focus:outline-none hover:underline"
-            style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', cursor: 'pointer' }}
-            onClick={handleShowFollowers}
-          >
-            <div className="text-lg font-semibold text-white">{followersCount}</div>
-            <div className="text-sm text-gray-400">Followers</div>
-          </button>
-          <button
-            className="text-center focus:outline-none hover:underline"
-            style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', cursor: 'pointer' }}
-            onClick={handleShowFollowing}
-          >
-            <div className="text-lg font-semibold text-white">{followingCount}</div>
-            <div className="text-sm text-gray-400">Following</div>
-          </button>
-          <div className="text-center">
-            <div className="text-lg font-semibold text-white">{postsCount}</div>
-            <div className="text-sm text-gray-400">Posts</div>
-          </div>
-        </div>
+        <ProfileStats
+          followersCount={followersCount}
+          followingCount={followingCount}
+          postsCount={postsCount}
+          onShowFollowers={handleShowFollowers}
+          onShowFollowing={handleShowFollowing}
+        />
 
         {profile?.bio && (
           <div className="mb-4">
