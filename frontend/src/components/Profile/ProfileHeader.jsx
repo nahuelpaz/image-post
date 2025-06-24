@@ -1,9 +1,17 @@
 import { useState } from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 import { profileService } from '../../services/profileService';
+import FollowersModal from './FollowersModal';
 
 const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile }) => {
   const [avatarLoading, setAvatarLoading] = useState(false);
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [followersData, setFollowersData] = useState([]);
+  const [loadingFollowers, setLoadingFollowers] = useState(false);
+
+  const [showFollowing, setShowFollowing] = useState(false);
+  const [followingData, setFollowingData] = useState([]);
+  const [loadingFollowing, setLoadingFollowing] = useState(false);
 
   const handleAvatarChange = async (event) => {
     const file = event.target.files[0];
@@ -26,6 +34,57 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
     }
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.username || 'User')}&background=262626&color=ffffff&size=128`;
   };
+
+  const handleShowFollowers = async () => {
+    if (Array.isArray(profile.followers) && profile.followers.length > 0 && typeof profile.followers[0] === 'string') {
+      setLoadingFollowers(true);
+      try {
+        const users = await profileService.getUsersByIds(profile.followers);
+        setFollowersData(users);
+      } catch (e) {
+        setFollowersData([]);
+      }
+      setLoadingFollowers(false);
+    } else {
+      setFollowersData(profile.followers || []);
+    }
+    setShowFollowers(true);
+  };
+
+  const handleShowFollowing = async () => {
+    if (Array.isArray(profile.following) && profile.following.length > 0 && typeof profile.following[0] === 'string') {
+      setLoadingFollowing(true);
+      try {
+        const users = await profileService.getUsersByIds(profile.following);
+        setFollowingData(users);
+      } catch (e) {
+        setFollowingData([]);
+      }
+      setLoadingFollowing(false);
+    } else {
+      setFollowingData(profile.following || []);
+    }
+    setShowFollowing(true);
+  };
+
+  // Fix counters for both own and other profiles
+  const followersCount = typeof profile.followersCount === 'number'
+    ? profile.followersCount
+    : Array.isArray(profile.followers)
+      ? profile.followers.length
+      : 0;
+
+  const followingCount = typeof profile.followingCount === 'number'
+    ? profile.followingCount
+    : Array.isArray(profile.following)
+      ? profile.following.length
+      : 0;
+
+  const postsCount = typeof profile.postsCount === 'number'
+    ? profile.postsCount
+    : Array.isArray(profile.posts)
+      ? profile.posts.length
+      : 0;
 
   return (
     <div className="flex flex-col md:flex-row gap-8 md:gap-16 mb-16 py-8 border-b border-gray-800">
@@ -80,17 +139,25 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
         </div>
 
         <div className="flex justify-center md:justify-start gap-8 mb-6">
-          <div className="text-center">
-            <div className="text-lg font-semibold text-white">{profile?.postsCount || 0}</div>
-            <div className="text-sm text-gray-400">Posts</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-semibold text-white">{profile?.followersCount || 0}</div>
+          <button
+            className="text-center focus:outline-none hover:underline"
+            style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', cursor: 'pointer' }}
+            onClick={handleShowFollowers}
+          >
+            <div className="text-lg font-semibold text-white">{followersCount}</div>
             <div className="text-sm text-gray-400">Followers</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-semibold text-white">{profile?.followingCount || 0}</div>
+          </button>
+          <button
+            className="text-center focus:outline-none hover:underline"
+            style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', cursor: 'pointer' }}
+            onClick={handleShowFollowing}
+          >
+            <div className="text-lg font-semibold text-white">{followingCount}</div>
             <div className="text-sm text-gray-400">Following</div>
+          </button>
+          <div className="text-center">
+            <div className="text-lg font-semibold text-white">{postsCount}</div>
+            <div className="text-sm text-gray-400">Posts</div>
           </div>
         </div>
 
@@ -106,8 +173,27 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
           </div>
         )}
       </div>
+
+      {showFollowers && (
+        <FollowersModal
+          title="Followers"
+          users={followersData}
+          loading={loadingFollowers}
+          onClose={() => setShowFollowers(false)}
+        />
+      )}
+      {showFollowing && (
+        <FollowersModal
+          title="Following"
+          users={followingData}
+          loading={loadingFollowing}
+          onClose={() => setShowFollowing(false)}
+        />
+      )}
     </div>
   );
 };
+
+
 
 export default ProfileHeader;

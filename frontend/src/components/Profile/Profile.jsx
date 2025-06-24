@@ -35,6 +35,7 @@ const Profile = () => {
       const profileData = isOwnProfile 
         ? await profileService.getCurrentUser()
         : await profileService.getUserProfile(targetUsername);
+      console.log('Loaded profile data:', profileData); // <-- Agregado para depuración
       setProfile(profileData);
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -63,13 +64,8 @@ const Profile = () => {
   const handleFollowToggle = async () => {
     try {
       await profileService.followUser(profile._id);
-      setProfile(prev => ({
-        ...prev,
-        isFollowing: !prev.isFollowing,
-        followersCount: prev.isFollowing 
-          ? prev.followersCount - 1 
-          : prev.followersCount + 1
-      }));
+      // Solo recarga el perfil (no toda la página)
+      await loadProfile();
     } catch (error) {
       console.error('Error toggling follow:', error);
     }
@@ -98,6 +94,21 @@ const Profile = () => {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <h2 className="text-2xl font-light text-white">User not found</h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar advertencia si falta nombre o avatar
+  if (!profile.username || !profile.avatar) {
+    return (
+      <div className="min-h-screen bg-black">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <h2 className="text-2xl font-light text-white">Perfil incompleto o datos faltantes</h2>
+            <pre className="text-gray-400 text-xs mt-2">{JSON.stringify(profile, null, 2)}</pre>
           </div>
         </div>
       </div>
@@ -134,5 +145,7 @@ const Profile = () => {
     </div>
   );
 };
+
+
 
 export default Profile;
