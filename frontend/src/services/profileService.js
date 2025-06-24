@@ -11,11 +11,25 @@ const getAuthHeaders = () => {
 export const profileService = {
   // Get user profile by username
   getUserProfile: async (username) => {
-    const response = await fetch(`${API_BASE_URL}/users/${username}`);
+    // Incluye el token para que el backend sepa quién es el usuario autenticado
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/users/${username}`, {
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
     if (!response.ok) {
       throw new Error('Failed to get user profile');
     }
-    return response.json();
+    const data = await response.json();
+    console.log('getUserProfile response:', data);
+    if (data.user) {
+      // Usa isFollowing solo si viene del backend
+      return {
+        ...data.user,
+        ...data.stats,
+        isFollowing: data.user.isFollowing,
+      };
+    }
+    return data;
   },
 
   // Get current user profile
@@ -87,5 +101,21 @@ export const profileService = {
       throw new Error('Failed to get user posts');
     }
     return response.json();
+  },
+
+  // Get users by array of IDs
+  getUsersByIds: async (ids) => {
+    const response = await fetch(`${API_BASE_URL}/users/bulk`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ids }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get users by IDs');
+    }
+    const data = await response.json();
+    return data.users || [];
   },
 };
