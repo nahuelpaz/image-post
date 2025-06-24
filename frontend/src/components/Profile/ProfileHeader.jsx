@@ -8,6 +8,7 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
   const [showFollowers, setShowFollowers] = useState(false);
   const [followersData, setFollowersData] = useState([]);
   const [loadingFollowers, setLoadingFollowers] = useState(false);
+
   const [showFollowing, setShowFollowing] = useState(false);
   const [followingData, setFollowingData] = useState([]);
   const [loadingFollowing, setLoadingFollowing] = useState(false);

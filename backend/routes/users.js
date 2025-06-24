@@ -255,6 +255,7 @@ router.post('/bulk', async (req, res) => {
     }
     const users = await User.find({ _id: { $in: ids } })
       .select('_id username avatar bio');
+
     res.json({ users });
   } catch (error) {
     console.error('Bulk user fetch error:', error);
