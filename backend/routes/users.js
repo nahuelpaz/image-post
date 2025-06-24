@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const Post = require('../models/Post');
 const auth = require('../middleware/auth');
+const authOptional = require('../middleware/authOptional');
 const { upload } = require('../config/cloudinary');
 
 const router = express.Router();
@@ -54,7 +55,7 @@ router.get('/search', async (req, res) => {
 });
 
 // @route   GET /api/users/:username
-router.get('/:username', async (req, res) => {
+router.get('/:username', authOptional, async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username })
       .populate('posts', 'title images likes createdAt')
@@ -62,6 +63,11 @@ router.get('/:username', async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
+    }
+
+    let isFollowing = false;
+    if (req.user && user.followers.some(f => f.equals(req.user.id))) {
+      isFollowing = true;
     }
 
     const stats = {
@@ -75,8 +81,12 @@ router.get('/:username', async (req, res) => {
       ]).then(result => result[0]?.total || 0)
     };
 
+    // Incluye isFollowing en el objeto user
+    const userObj = user.toObject();
+    userObj.isFollowing = isFollowing;
+
     res.json({
-      user,
+      user: userObj,
       stats
     });
 
@@ -231,6 +241,23 @@ router.get('/:username/posts', async (req, res) => {
 
   } catch (error) {
     console.error('Get user posts error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/users/bulk
+// @desc    Get user info for an array of user IDs
+router.post('/bulk', async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: 'No user IDs provided' });
+    }
+    const users = await User.find({ _id: { $in: ids } })
+      .select('_id username avatar bio');
+    res.json({ users });
+  } catch (error) {
+    console.error('Bulk user fetch error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

@@ -5,6 +5,7 @@ import RegisterForm from './components/auth/RegisterForm';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
+import SearchPage from './components/Search/SearchPage';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route path="/search" element={<SearchPage />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>

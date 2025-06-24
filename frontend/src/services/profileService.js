@@ -11,11 +11,22 @@ const getAuthHeaders = () => {
 export const profileService = {
   // Get user profile by username
   getUserProfile: async (username) => {
-    const response = await fetch(`${API_BASE_URL}/users/${username}`);
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/users/${username}`, {
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+    });
     if (!response.ok) {
       throw new Error('Failed to get user profile');
     }
-    return response.json();
+    const data = await response.json();
+    // Normaliza la respuesta: combina user y stats en un solo objeto plano
+    if (data.user) {
+      return {
+        ...data.user,
+        ...data.stats,
+      };
+    }
+    return data;
   },
 
   // Get current user profile
@@ -87,5 +98,21 @@ export const profileService = {
       throw new Error('Failed to get user posts');
     }
     return response.json();
+  },
+
+  // Get users by array of IDs
+  getUsersByIds: async (ids) => {
+    const response = await fetch(`${API_BASE_URL}/users/bulk`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ids }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get users by IDs');
+    }
+    const data = await response.json();
+    return data.users || [];
   },
 };
