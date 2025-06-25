@@ -115,4 +115,47 @@ export const profileService = {
     const data = await response.json();
     return data.users || [];
   },
+
+  // Change email
+  changeEmail: async (email, password) => {
+    const response = await fetch(`${API_BASE_URL}/users/change-email`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ email, password }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to change email');
+    }
+    const data = await response.json();
+    return data.user || data;
+  },
+
+  // Change password
+  changePassword: async (currentPassword, newPassword) => {
+    const response = await fetch(`${API_BASE_URL}/users/change-password`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to change password');
+    }
+    return response.json();
+  },
+
+  // Delete account
+  deleteAccount: async (password) => {
+    const response = await fetch(`${API_BASE_URL}/users/account`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ password }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to delete account');
+    }
+    return response.json();
+  },
 };
