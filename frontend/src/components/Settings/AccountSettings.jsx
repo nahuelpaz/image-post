@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { profileService } from '../../services/profileService';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Trash2, ChevronRight } from 'lucide-react';
+import { Mail, Lock, Trash2 } from 'lucide-react';
+import SettingsDropdown from './SettingsDropdown';
 
 const AccountSettings = ({ user }) => {
   const { logout } = useAuth();
@@ -135,200 +136,153 @@ const AccountSettings = ({ user }) => {
       )}
 
       {/* Change Email Section */}
-      <div className="border border-neutral-800 rounded-2xl bg-neutral-950/50 overflow-hidden">
-        <button
-          onClick={() => toggleSection('email')}
-          className="w-full flex items-center justify-between px-6 py-4 hover:bg-neutral-900/50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <Mail className="w-5 h-5 text-gray-400" />
-            <h3 className="text-white font-medium">Change Email</h3>
+      <SettingsDropdown
+        title="Change Email"
+        icon={Mail}
+        isExpanded={expandedSection === 'email'}
+        onToggle={() => toggleSection('email')}
+      >
+        <form onSubmit={handleEmailChange} className="space-y-4 mt-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              New Email
+            </label>
+            <input
+              type="email"
+              value={emailForm.email}
+              onChange={(e) => setEmailForm(prev => ({ ...prev, email: e.target.value }))}
+              className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
+              required
+            />
           </div>
-          <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${
-            expandedSection === 'email' ? 'rotate-90' : ''
-          }`} />
-        </button>
-        
-        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          expandedSection === 'email' 
-            ? 'max-h-96 opacity-100' 
-            : 'max-h-0 opacity-0'
-        }`}>
-          <div className="px-6 pb-6 border-t border-neutral-800">
-            <form onSubmit={handleEmailChange} className="space-y-4 mt-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  New Email
-                </label>
-                <input
-                  type="email"
-                  value={emailForm.email}
-                  onChange={(e) => setEmailForm(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  value={emailForm.password}
-                  onChange={(e) => setEmailForm(prev => ({ ...prev, password: e.target.value }))}
-                  className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
-              >
-                {loading ? 'Updating...' : 'Update Email'}
-              </button>
-            </form>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Current Password
+            </label>
+            <input
+              type="password"
+              value={emailForm.password}
+              onChange={(e) => setEmailForm(prev => ({ ...prev, password: e.target.value }))}
+              className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
+              required
+            />
           </div>
-        </div>
-      </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
+          >
+            {loading ? 'Updating...' : 'Update Email'}
+          </button>
+        </form>
+      </SettingsDropdown>
 
       {/* Change Password Section */}
-      <div className="border border-neutral-800 rounded-2xl bg-neutral-950/50 overflow-hidden">
-        <button
-          onClick={() => toggleSection('password')}
-          className="w-full flex items-center justify-between px-6 py-4 hover:bg-neutral-900/50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <Lock className="w-5 h-5 text-gray-400" />
-            <h3 className="text-white font-medium">Change Password</h3>
+      <SettingsDropdown
+        title="Change Password"
+        icon={Lock}
+        isExpanded={expandedSection === 'password'}
+        onToggle={() => toggleSection('password')}
+      >
+        <form onSubmit={handlePasswordChange} className="space-y-4 mt-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Current Password
+            </label>
+            <input
+              type="password"
+              value={passwordForm.currentPassword}
+              onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+              className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
+              required
+            />
           </div>
-          <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${
-            expandedSection === 'password' ? 'rotate-90' : ''
-          }`} />
-        </button>
-        
-        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          expandedSection === 'password' 
-            ? 'max-h-[500px] opacity-100' 
-            : 'max-h-0 opacity-0'
-        }`}>
-          <div className="px-6 pb-6 border-t border-neutral-800">
-            <form onSubmit={handlePasswordChange} className="space-y-4 mt-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  value={passwordForm.currentPassword}
-                  onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
-                  className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  value={passwordForm.newPassword}
-                  onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
-                  className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
-                  minLength={6}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Confirm New Password
-                </label>
-                <input
-                  type="password"
-                  value={passwordForm.confirmPassword}
-                  onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                  className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
-                  minLength={6}
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
-              >
-                {loading ? 'Changing...' : 'Change Password'}
-              </button>
-            </form>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              New Password
+            </label>
+            <input
+              type="password"
+              value={passwordForm.newPassword}
+              onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+              className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
+              minLength={6}
+              required
+            />
           </div>
-        </div>
-      </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Confirm New Password
+            </label>
+            <input
+              type="password"
+              value={passwordForm.confirmPassword}
+              onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+              className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
+              minLength={6}
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
+          >
+            {loading ? 'Changing...' : 'Change Password'}
+          </button>
+        </form>
+      </SettingsDropdown>
 
       {/* Delete Account Section */}
-      <div className="border border-red-500/30 rounded-2xl bg-red-900/10 overflow-hidden">
-        <button
-          onClick={() => toggleSection('delete')}
-          className="w-full flex items-center justify-between px-6 py-4 hover:bg-red-900/20 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <Trash2 className="w-5 h-5 text-red-400" />
-            <h3 className="text-red-400 font-medium">Delete Account</h3>
+      <SettingsDropdown
+        title="Delete Account"
+        icon={Trash2}
+        isExpanded={expandedSection === 'delete'}
+        onToggle={() => toggleSection('delete')}
+        className="red-section"
+      >
+        <p className="text-gray-300 text-sm mt-4 mb-4">
+          This action cannot be undone. This will permanently delete your account and all associated data.
+        </p>
+        <form onSubmit={handleDeleteAccount} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Type "DELETE" to confirm
+            </label>
+            <input
+              type="text"
+              value={deleteForm.confirmText}
+              onChange={(e) => setDeleteForm(prev => ({ ...prev, confirmText: e.target.value }))}
+              className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-red-500 transition"
+              placeholder="DELETE"
+              required
+            />
           </div>
-          <ChevronRight className={`w-5 h-5 text-red-400 transition-transform duration-300 ${
-            expandedSection === 'delete' ? 'rotate-90' : ''
-          }`} />
-        </button>
-        
-        <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          expandedSection === 'delete' 
-            ? 'max-h-96 opacity-100' 
-            : 'max-h-0 opacity-0'
-        }`}>
-          <div className="px-6 pb-6 border-t border-red-500/30">
-            <p className="text-gray-300 text-sm mt-4 mb-4">
-              This action cannot be undone. This will permanently delete your account and all associated data.
-            </p>
-            <form onSubmit={handleDeleteAccount} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Type "DELETE" to confirm
-                </label>
-                <input
-                  type="text"
-                  value={deleteForm.confirmText}
-                  onChange={(e) => setDeleteForm(prev => ({ ...prev, confirmText: e.target.value }))}
-                  className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-red-500 transition"
-                  placeholder="DELETE"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  value={deleteForm.password}
-                  onChange={(e) => setDeleteForm(prev => ({ ...prev, password: e.target.value }))}
-                  className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-red-500 transition"
-                  required
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loading || deleteForm.confirmText !== 'DELETE' || !deleteForm.password.trim()}
-                className={`px-4 py-2 font-medium rounded-lg transition-colors ${
-                  deleteForm.confirmText === 'DELETE' && deleteForm.password.trim()
-                    ? 'bg-red-600 text-white hover:bg-red-700' 
-                    : 'bg-gray-600 text-gray-400'
-                } disabled:opacity-50`}
-              >
-                {loading ? 'Deleting...' : 'Delete Account'}
-              </button>
-            </form>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Current Password
+            </label>
+            <input
+              type="password"
+              value={deleteForm.password}
+              onChange={(e) => setDeleteForm(prev => ({ ...prev, password: e.target.value }))}
+              className="w-full px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-red-500 transition"
+              required
+            />
           </div>
-        </div>
-      </div>
+          <button
+            type="submit"
+            disabled={loading || deleteForm.confirmText !== 'DELETE' || !deleteForm.password.trim()}
+            className={`px-4 py-2 font-medium rounded-lg transition-colors ${
+              deleteForm.confirmText === 'DELETE' && deleteForm.password.trim()
+                ? 'bg-red-600 text-white hover:bg-red-700' 
+                : 'bg-gray-600 text-gray-400'
+            } disabled:opacity-50`}
+          >
+            {loading ? 'Deleting...' : 'Delete Account'}
+          </button>
+        </form>
+      </SettingsDropdown>
     </div>
   );
 };
