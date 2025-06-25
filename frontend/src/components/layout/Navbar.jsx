@@ -59,8 +59,12 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <Link to="/" className="text-white text-xl font-medium hover:text-gray-300 transition-colors">
-                ImagePost
+              <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
+                <img 
+                  src="/icono.png" 
+                  alt="ImagePost Logo" 
+                  className="h-8 w-8"
+                />
               </Link>
             </div>
           </div>
