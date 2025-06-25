@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Post = require('../models/Post');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { createNotification, generateNotificationMessage } = require('../utils/notifications');
 
 const router = express.Router();
 
@@ -106,7 +107,7 @@ router.get('/:id', async (req, res) => {
 // @route   PUT /api/posts/:id/like
 router.put('/:id/like', auth, async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate('author', 'username');
     
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
@@ -122,6 +123,15 @@ router.put('/:id/like', auth, async (req, res) => {
     } else {
       // Like
       post.likes.push({ user: req.user.id });
+      
+      // Crear notificación de like
+      await createNotification({
+        recipient: post.author._id,
+        sender: req.user.id,
+        type: 'like',
+        post: post._id,
+        message: generateNotificationMessage('like', req.user.username, post.title)
+      });
     }
 
     await post.save();

@@ -46,6 +46,20 @@ const userSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  notificationSettings: {
+    likes: {
+      type: Boolean,
+      default: true
+    },
+    comments: {
+      type: Boolean,
+      default: true
+    },
+    follows: {
+      type: Boolean,
+      default: true
+    }
   }
 }, {
   timestamps: true

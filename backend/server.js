@@ -20,7 +20,7 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 500, // Aumentado a 500 requests por IP por 15 minutos para desarrollo
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
@@ -62,6 +62,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/comments', require('./routes/comments'));
 app.use('/api/search', require('./routes/search'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

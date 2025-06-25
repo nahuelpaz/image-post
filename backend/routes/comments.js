@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Post = require('../models/Post');
 const auth = require('../middleware/auth');
+const { createNotification, generateNotificationMessage } = require('../utils/notifications');
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ router.post('/:postId', auth, [
     const { text } = req.body;
     const postId = req.params.postId;
 
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate('author', 'username');
     if (!post) {
       return res.status(404).json({ message: 'Post not found' });
     }
@@ -32,9 +33,20 @@ router.post('/:postId', auth, [
     post.comments.push(newComment);
     await post.save();
 
-    await post.populate('comments.user', 'username avatar');
-
+    // Obtener el comentario recién agregado con su ID
     const addedComment = post.comments[post.comments.length - 1];
+
+    // Crear notificación de comentario con ID del comentario
+    await createNotification({
+      recipient: post.author._id,
+      sender: req.user.id,
+      type: 'comment',
+      post: post._id,
+      comment: addedComment._id, // Agregar ID del comentario
+      message: generateNotificationMessage('comment', req.user.username, post.title)
+    });
+
+    await post.populate('comments.user', 'username avatar');
 
     res.status(201).json({
       message: 'Comment added successfully',

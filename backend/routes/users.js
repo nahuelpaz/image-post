@@ -6,6 +6,7 @@ const auth = require('../middleware/auth');
 const authOptional = require('../middleware/authOptional');
 const { upload } = require('../config/cloudinary');
 const cloudinary = require('cloudinary').v2;
+const { createNotification, generateNotificationMessage } = require('../utils/notifications');
 
 const router = express.Router();
 
@@ -199,6 +200,14 @@ router.put('/:id/follow', auth, async (req, res) => {
     } else {
       currentUser.following.push(targetUserId);
       targetUser.followers.push(currentUserId);
+      
+      // Crear notificación de follow
+      await createNotification({
+        recipient: targetUserId,
+        sender: currentUserId,
+        type: 'follow',
+        message: generateNotificationMessage('follow', req.user.username)
+      });
     }
 
     await currentUser.save();
@@ -442,6 +451,55 @@ router.put('/change-email', auth, [
 
   } catch (error) {
     console.error('Change email error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/users/settings/notifications
+// @desc    Get user's notification settings
+router.get('/settings/notifications', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('notificationSettings');
+    
+    res.json({
+      notificationSettings: user.notificationSettings || {
+        likes: true,
+        comments: true,
+        follows: true
+      }
+    });
+
+  } catch (error) {
+    console.error('Get notification settings error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   PUT /api/users/settings/notifications
+// @desc    Update user's notification settings
+router.put('/settings/notifications', auth, async (req, res) => {
+  try {
+    const { likes, comments, follows } = req.body;
+    
+    const updateData = {
+      'notificationSettings.likes': likes,
+      'notificationSettings.comments': comments,
+      'notificationSettings.follows': follows
+    };
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select('notificationSettings');
+
+    res.json({
+      message: 'Notification settings updated successfully',
+      notificationSettings: user.notificationSettings
+    });
+
+  } catch (error) {
+    console.error('Update notification settings error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

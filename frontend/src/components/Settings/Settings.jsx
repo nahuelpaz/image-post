@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import AccountSettings from './AccountSettings';
+import NotificationSettings from './NotificationSettings';
 
 const Settings = () => {
   const { user } = useAuth();
@@ -11,8 +12,8 @@ const Settings = () => {
 
   const tabs = [
     { id: 'account', label: 'Account Settings', component: AccountSettings },
+    { id: 'notifications', label: 'Notifications', component: NotificationSettings },
     // { id: 'privacy', label: 'Privacy & Security', component: PrivacySettings },
-    // { id: 'notifications', label: 'Notifications', component: NotificationSettings },
   ];
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;

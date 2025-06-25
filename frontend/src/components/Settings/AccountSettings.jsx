@@ -116,8 +116,8 @@ const AccountSettings = ({ user }) => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-medium text-white mb-4">Account Settings</h2>
-        <p className="text-gray-400 text-sm">
+        <h2 className="text-xl font-semibold text-white mb-4">Account Settings</h2>
+        <p className="text-gray-400 text-sm mt-1">
           Manage your account information and security settings
         </p>
       </div>
@@ -138,11 +138,11 @@ const AccountSettings = ({ user }) => {
       <div className="border border-neutral-800 rounded-2xl bg-neutral-950/50 overflow-hidden">
         <button
           onClick={() => toggleSection('email')}
-          className="w-full flex items-center justify-between p-6 hover:bg-neutral-900/50 transition-colors"
+          className="w-full flex items-center justify-between px-6 py-4 hover:bg-neutral-900/50 transition-colors"
         >
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5 text-gray-400" />
-            <h3 className="text-lg font-medium text-white">Change Email</h3>
+            <h3 className="text-white font-medium">Change Email</h3>
           </div>
           <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${
             expandedSection === 'email' ? 'rotate-90' : ''
@@ -183,7 +183,7 @@ const AccountSettings = ({ user }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                className="px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
               >
                 {loading ? 'Updating...' : 'Update Email'}
               </button>
@@ -196,11 +196,11 @@ const AccountSettings = ({ user }) => {
       <div className="border border-neutral-800 rounded-2xl bg-neutral-950/50 overflow-hidden">
         <button
           onClick={() => toggleSection('password')}
-          className="w-full flex items-center justify-between p-6 hover:bg-neutral-900/50 transition-colors"
+          className="w-full flex items-center justify-between px-6 py-4 hover:bg-neutral-900/50 transition-colors"
         >
           <div className="flex items-center gap-3">
             <Lock className="w-5 h-5 text-gray-400" />
-            <h3 className="text-lg font-medium text-white">Change Password</h3>
+            <h3 className="text-white font-medium">Change Password</h3>
           </div>
           <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${
             expandedSection === 'password' ? 'rotate-90' : ''
@@ -255,7 +255,7 @@ const AccountSettings = ({ user }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                className="px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors"
               >
                 {loading ? 'Changing...' : 'Change Password'}
               </button>
@@ -268,11 +268,11 @@ const AccountSettings = ({ user }) => {
       <div className="border border-red-500/30 rounded-2xl bg-red-900/10 overflow-hidden">
         <button
           onClick={() => toggleSection('delete')}
-          className="w-full flex items-center justify-between p-6 hover:bg-red-900/20 transition-colors"
+          className="w-full flex items-center justify-between px-6 py-4 hover:bg-red-900/20 transition-colors"
         >
           <div className="flex items-center gap-3">
             <Trash2 className="w-5 h-5 text-red-400" />
-            <h3 className="text-lg font-medium text-red-400">Delete Account</h3>
+            <h3 className="text-red-400 font-medium">Delete Account</h3>
           </div>
           <ChevronRight className={`w-5 h-5 text-red-400 transition-transform duration-300 ${
             expandedSection === 'delete' ? 'rotate-90' : ''
@@ -317,7 +317,7 @@ const AccountSettings = ({ user }) => {
               <button
                 type="submit"
                 disabled={loading || deleteForm.confirmText !== 'DELETE' || !deleteForm.password.trim()}
-                className={`px-6 py-3 font-semibold rounded-xl transition-colors ${
+                className={`px-4 py-2 font-medium rounded-lg transition-colors ${
                   deleteForm.confirmText === 'DELETE' && deleteForm.password.trim()
                     ? 'bg-red-600 text-white hover:bg-red-700' 
                     : 'bg-gray-600 text-gray-400'

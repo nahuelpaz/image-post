@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { User, Loader2, Send, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const PostComments = ({
   post,
@@ -11,7 +12,36 @@ const PostComments = ({
   handleCommentSubmit,
   onDeleteComment,
   isPostAuthor
-}) => (
+}) => {
+  const [highlightedComment, setHighlightedComment] = useState(null);
+  
+  // Scroll al comentario si hay hash en la URL
+  useEffect(() => {
+    const hash = window.location.hash;
+    
+    if (hash.startsWith('#comment-')) {
+      const commentId = hash.replace('#comment-', '');
+      
+      const commentElement = document.getElementById(`comment-${commentId}`);
+      
+      if (commentElement) {
+        setTimeout(() => {
+          commentElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+          // Resaltar el comentario
+          setHighlightedComment(commentId);
+          // Quitar el resaltado después de 3 segundos
+          setTimeout(() => {
+            setHighlightedComment(null);
+          }, 3000);
+        }, 500);
+      }
+    }
+  }, [post.comments]);
+
+  return (
   <div className="mt-8">
     <h3 className="text-base font-medium text-gray-400 mb-3 tracking-wide">
       Comments
@@ -61,10 +91,17 @@ const PostComments = ({
               user &&
               (String(c.user?._id || c.user?.id) === String(user._id || user.id));
             const canDelete = isCommentAuthor || isPostAuthor;
+            const isHighlighted = highlightedComment === c._id;
+            
             return (
               <div
                 key={i}
-                className="flex items-start gap-3 bg-black/70 rounded-lg px-4 pt-3 pr-4 pl-4 relative"
+                id={`comment-${c._id}`}
+                className={`flex items-start gap-3 rounded-lg px-4 pt-3 pr-4 pl-4 relative transition-all duration-700 ${
+                  isHighlighted 
+                    ? 'bg-blue-500/20 ring-2 ring-blue-400/60 shadow-lg shadow-blue-400/30 border border-blue-400/40' 
+                    : 'bg-black/70'
+                }`}
                 style={{ marginTop: i === 0 ? '4px' : undefined }}
               >
                 <Link
@@ -105,6 +142,7 @@ const PostComments = ({
       )}
     </div>
   </div>
-);
+  );
+};
 
 export default PostComments;
