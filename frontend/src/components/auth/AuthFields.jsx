@@ -13,7 +13,7 @@ const AuthFields = ({ formData, onChange, showEmail = false }) => (
         required
         value={formData.username}
         onChange={onChange}
-        className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all"
+        className="w-full px-3 py-2 bg-neutral-950/50 border border-neutral-800 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
         placeholder="Enter your username"
         autoComplete="username"
       />
@@ -30,7 +30,7 @@ const AuthFields = ({ formData, onChange, showEmail = false }) => (
           required
           value={formData.email}
           onChange={onChange}
-          className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all"
+          className="w-full px-3 py-2 bg-neutral-950/50 border border-neutral-800 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
           placeholder="Enter your email"
           autoComplete="email"
         />
@@ -47,7 +47,7 @@ const AuthFields = ({ formData, onChange, showEmail = false }) => (
         required
         value={formData.password}
         onChange={onChange}
-        className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent transition-all"
+        className="w-full px-3 py-2 bg-neutral-950/50 border border-neutral-800 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
         placeholder="Enter your password"
         autoComplete={showEmail ? "new-password" : "current-password"}
       />

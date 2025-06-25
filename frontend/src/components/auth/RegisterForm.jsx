@@ -34,6 +34,13 @@ const RegisterForm = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="bg-black border border-neutral-900 rounded-2xl shadow-2xl p-8">
           <div className="text-center">
+            <div className="flex justify-center mb-6">
+              <img 
+                src="/icono.png" 
+                alt="ImagePost Logo" 
+                className="h-16 w-16"
+              />
+            </div>
             <h2 className="text-3xl font-bold text-white mb-2">Create account</h2>
             <p className="text-gray-400">Join our community today</p>
           </div>
@@ -50,14 +57,14 @@ const RegisterForm = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-neutral-800 text-white py-2 px-4 rounded-lg font-medium hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 focus:ring-offset-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating account...' : 'Create account'}
             </button>
 
             <div className="text-center mt-4">
               <span className="text-gray-400">Already have an account? </span>
-              <Link to="/login" className="text-blue-400 hover:underline transition-colors">
+              <Link to="/login" className="text-white hover:text-gray-300 hover:underline transition-colors">
                 Sign in
               </Link>
             </div>
