@@ -243,13 +243,20 @@ const PostDetail = () => {
         const err = await res.json();
         throw new Error(err.message || 'Failed to delete comment');
       }
-            // Recarga comentarios sin sumar view
-      const updated = await fetch(`${API_BASE_URL}/posts/${post._id}?countView=false`, {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-      });
-      if (updated.ok) {
-        const updatedData = await updated.json();
-        setPost(updatedData.post);
+      
+      // Obtener el post actualizado con comentarios populados desde la respuesta
+      const result = await res.json();
+      if (result.post) {
+        setPost(result.post);
+      } else {
+        // Fallback: recarga comentarios sin sumar view
+        const updated = await fetch(`${API_BASE_URL}/posts/${post._id}?countView=false`, {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        });
+        if (updated.ok) {
+          const updatedData = await updated.json();
+          setPost(updatedData.post);
+        }
       }
     } catch (err) {
       alert(err.message || 'Failed to delete comment');

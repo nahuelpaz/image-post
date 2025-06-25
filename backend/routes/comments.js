@@ -117,8 +117,12 @@ router.delete('/:postId/:commentId', auth, async (req, res) => {
     // Elimina el comentario del array
     post.comments = post.comments.filter(c => c._id.toString() !== commentId);
     await post.save();
+    
+    // Populate tanto el autor del post como los usuarios de los comentarios
+    await post.populate('author', 'username avatar');
+    await post.populate('comments.user', 'username avatar');
 
-    res.json({ message: 'Comment deleted' });
+    res.json({ message: 'Comment deleted', post });
   } catch (error) {
     console.error('Delete comment error:', error);
     res.status(500).json({ message: 'Server error' });

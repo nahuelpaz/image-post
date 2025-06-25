@@ -174,6 +174,7 @@ router.put('/:id', auth, [
 
     await post.save();
     await post.populate('author', 'username avatar');
+    await post.populate('comments.user', 'username avatar');
 
     res.json({ message: 'Post updated', post });
   } catch (error) {
