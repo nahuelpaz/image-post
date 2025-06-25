@@ -5,6 +5,7 @@ const Post = require('../models/Post');
 const auth = require('../middleware/auth');
 const authOptional = require('../middleware/authOptional');
 const { upload } = require('../config/cloudinary');
+const cloudinary = require('cloudinary').v2;
 
 const router = express.Router();
 
@@ -270,6 +271,177 @@ router.post('/bulk', async (req, res) => {
     res.json({ users });
   } catch (error) {
     console.error('Bulk user fetch error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   DELETE /api/users/account
+// @desc    Delete user account (soft delete)
+router.delete('/account', auth, [
+  body('password').notEmpty().withMessage('Password is required to delete account')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const userId = req.user.id;
+    const { password } = req.body;
+
+    // Primero obtener los datos del usuario CON la contraseña para verificar
+    const currentUser = await User.findById(userId).select('+password');
+    
+    if (!currentUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Verificar la contraseña
+    const isMatch = await currentUser.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Password is incorrect' });
+    }
+    // Hard delete: eliminar completamente el usuario y sus datos
+    
+    // 1. Obtener todos los posts del usuario
+    const userPosts = await Post.find({ author: userId });
+    
+    // 2. Eliminar las imágenes de Cloudinary
+    for (const post of userPosts) {
+      if (post.images && post.images.length > 0) {
+        for (const image of post.images) {
+          try {
+            // Extraer public_id de la URL de Cloudinary
+            const publicId = image.public_id || image.url.split('/').pop().split('.')[0];
+            await cloudinary.uploader.destroy(`imagepost/${publicId}`);
+            console.log(`Deleted image: ${publicId}`);
+          } catch (error) {
+            console.error(`Error deleting image: ${error.message}`);
+          }
+        }
+      }
+    }
+    
+    // 3. Eliminar todos los posts
+    await Post.deleteMany({ author: userId });
+    
+    // 4. Eliminar el usuario de las listas de following/followers de otros usuarios
+    await User.updateMany(
+      { following: userId },
+      { $pull: { following: userId } }
+    );
+    await User.updateMany(
+      { followers: userId },
+      { $pull: { followers: userId } }
+    );
+    
+    // 5. Eliminar comentarios del usuario en otros posts
+    await Post.updateMany(
+      {},
+      { $pull: { comments: { author: userId } } }
+    );
+    
+    // 6. Eliminar likes del usuario en otros posts
+    await Post.updateMany(
+      {},
+      { $pull: { likes: userId } }
+    );
+    
+    // 7. Finalmente eliminar el usuario
+    await User.findByIdAndDelete(userId);
+
+    res.json({
+      message: 'Account and all associated data deleted successfully',
+      user: null
+    });
+
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   PUT /api/users/change-password
+// @desc    Change user password
+router.put('/change-password', auth, [
+  body('currentPassword').notEmpty().withMessage('Current password is required'),
+  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id).select('+password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Verify current password
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    res.json({
+      message: 'Password changed successfully'
+    });
+
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   PUT /api/users/change-email
+// @desc    Change user email
+router.put('/change-email', auth, [
+  body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+  body('password').notEmpty().withMessage('Password is required to change email')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email, password } = req.body;
+    const user = await User.findById(req.user.id).select('+password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Verify password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Password is incorrect' });
+    }
+
+    // Check if email is already taken
+    const existingUser = await User.findOne({ email, _id: { $ne: req.user.id } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email is already taken' });
+    }
+
+    // Update email
+    user.email = email;
+    await user.save();
+
+    res.json({
+      message: 'Email changed successfully',
+      user: user.toJSON()
+    });
+
+  } catch (error) {
+    console.error('Change email error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

@@ -4,6 +4,7 @@ import LoginForm from './components/auth/LoginForm';
 import RegisterForm from './components/auth/RegisterForm';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile/Profile';
+import Settings from './components/Settings/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 import SearchPage from './components/Search/SearchPage';
 import CreatePost from './components/CreatePost';
@@ -32,6 +33,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               } 
             />

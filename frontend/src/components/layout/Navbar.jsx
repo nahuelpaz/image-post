@@ -96,18 +96,13 @@ const Navbar = () => {
                   >
                     Profile
                   </Link>
-                  <a
-                    href="#"
+                  <Link
+                    to="/settings"
                     className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-900 transition-colors"
+                    onClick={() => setIsDropdownOpen(false)}
                   >
                     Settings
-                  </a>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-900 transition-colors"
-                  >
-                    Your Posts
-                  </a>
+                  </Link>
                   
                   <div className="border-t border-gray-800 mt-1">
                     <button
