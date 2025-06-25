@@ -3,6 +3,7 @@ import { profileService } from '../../services/profileService';
 import FollowersModal from './FollowersModal';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileStats from './ProfileStats';
+import AvatarModal from './AvatarModal';
 
 const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile }) => {
   const [avatarLoading, setAvatarLoading] = useState(false);
@@ -13,6 +14,9 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
   const [showFollowing, setShowFollowing] = useState(false);
   const [followingData, setFollowingData] = useState([]);
   const [loadingFollowing, setLoadingFollowing] = useState(false);
+
+  // Estado para el modal del avatar
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   const handleAvatarChange = async (event) => {
     const file = event.target.files[0];
@@ -34,6 +38,13 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
       return profile.avatar;
     }
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.username || 'User')}&background=262626&color=ffffff&size=128`;
+  };
+
+  const handleAvatarClick = () => {
+    // Solo abrir modal si tiene avatar real (no generado)
+    if (profile?.avatar) {
+      setShowAvatarModal(true);
+    }
   };
 
   const handleShowFollowers = async () => {
@@ -95,6 +106,7 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
           isOwnProfile={isOwnProfile}
           avatarLoading={avatarLoading}
           handleAvatarChange={handleAvatarChange}
+          onAvatarClick={handleAvatarClick}
         />
       </div>
 
@@ -104,17 +116,17 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
           {isOwnProfile ? (
             <button 
               onClick={onEditProfile}
-              className="px-4 py-2 bg-transparent border border-gray-600 text-white font-semibold rounded hover:bg-gray-900 transition-colors"
+              className="px-4 py-2 bg-transparent border border-gray-600 text-white font-semibold rounded-lg hover:bg-neutral-900 hover:border-gray-600 transition-all duration-200"
             >
               Edit Profile
             </button>
           ) : (
             <button 
               onClick={onFollowToggle}
-              className={`px-4 py-2 font-semibold rounded transition-colors ${
+              className={`px-4 py-2 font-semibold rounded-lg transition-all duration-200 ${
                 profile?.isFollowing 
-                  ? 'bg-transparent border border-gray-600 text-white hover:bg-gray-900' 
-                  : 'bg-white text-black hover:bg-gray-200'
+                  ? 'bg-transparent border border-gray-600 text-white hover:bg-neutral-900 hover:border-gray-600' 
+                  : 'bg-white text-black hover:bg-gray-50 border border-white'
               }`}
             >
               {profile?.isFollowing ? 'Unfollow' : 'Follow'}
@@ -153,6 +165,14 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
           onClose={() => setShowFollowing(false)}
         />
       )}
+
+      {/* Modal para ver avatar en pantalla completa */}
+      <AvatarModal
+        isOpen={showAvatarModal}
+        onClose={() => setShowAvatarModal(false)}
+        avatarSrc={profile?.avatar}
+        username={profile?.username}
+      />
     </div>
   );
 };
