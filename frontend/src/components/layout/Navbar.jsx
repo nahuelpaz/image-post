@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Bell } from 'lucide-react';
+import { ChevronDown, Bell, Menu, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
 import { Link } from 'react-router-dom';
@@ -10,8 +10,10 @@ const Navbar = () => {
   const { unreadCount, fetchUnreadCount } = useNotifications();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
   const notificationsRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -21,6 +23,9 @@ const Navbar = () => {
       }
       if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
         setIsNotificationsOpen(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setIsMobileMenuOpen(false);
       }
     };
 
@@ -50,6 +55,11 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -88,8 +98,22 @@ const Navbar = () => {
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center space-x-4">
-            {/* Notifications */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black rounded-lg transition-all p-2"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
+            </div>
+
+            {/* Notifications - Always visible */}
             <div className="relative" ref={notificationsRef}>
               <button
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -109,7 +133,7 @@ const Navbar = () => {
               />
             </div>
 
-            {/* User Dropdown */}
+            {/* User Dropdown - Always visible */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -120,7 +144,7 @@ const Navbar = () => {
                   src={getAvatarSrc()}
                   alt={`${user?.username}'s avatar`}
                 />
-                <span className="hidden md:block text-sm font-medium">{user?.username}</span>
+                <span className="hidden sm:block text-sm font-medium">{user?.username}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
@@ -162,23 +186,41 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
-      <div className="md:hidden">
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-800">
-          <Link to="/" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
-            Home
-          </Link>
-          <Link to="/search" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
-            Search
-          </Link>
-          <Link to="/explore" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
-            Explore
-          </Link>
-          <Link to="/create-post" className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium">
-            Create
-          </Link>
+      {/* Mobile menu - Only navigation links */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden" ref={mobileMenuRef}>
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-800 bg-black">
+            <Link 
+              to="/" 
+              className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium transition-colors"
+              onClick={closeMobileMenu}
+            >
+              Home
+            </Link>
+            <Link 
+              to="/search" 
+              className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium transition-colors"
+              onClick={closeMobileMenu}
+            >
+              Search
+            </Link>
+            <Link 
+              to="/explore" 
+              className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium transition-colors"
+              onClick={closeMobileMenu}
+            >
+              Explore
+            </Link>
+            <Link 
+              to="/create-post" 
+              className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium transition-colors"
+              onClick={closeMobileMenu}
+            >
+              Create
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 };
