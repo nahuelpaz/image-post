@@ -9,6 +9,7 @@ import PostImages from './PostDetail/PostImages';
 import PostInfo from './PostDetail/PostInfo';
 import PostComments from './PostDetail/PostComments';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
+import DownloadAlert from './DownloadAlert';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -32,6 +33,7 @@ const PostDetail = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteCommentId, setDeleteCommentId] = useState(null);
+  const [downloadAlert, setDownloadAlert] = useState({ show: false, message: '' });
   const menuRef = useRef();
 
   // Determina si el usuario actual ya dio like
@@ -136,27 +138,48 @@ const PostDetail = () => {
 
   // Descargar imagen individual
   const handleDownloadImage = async (img) => {
-    const response = await fetch(img.url);
-    const blob = await response.blob();
-    const ext = img.format ? `.${img.format}` : '';
-    saveAs(blob, img.filename || `image${ext}`);
+    try {
+      const response = await fetch(img.url);
+      const blob = await response.blob();
+      const ext = img.format ? `.${img.format}` : '';
+      const filename = img.filename || `image${ext}`;
+      saveAs(blob, filename);
+      
+      setDownloadAlert({
+        show: true,
+        message: `${filename} has been downloaded successfully`
+      });
+    } catch (error) {
+      console.error('Download failed:', error);
+    }
   };
 
   // Descargar todas las imágenes como ZIP
   const handleDownloadAll = async () => {
     if (!post.images || post.images.length === 0) return;
-    const zip = new JSZip();
-    // Descarga cada imagen y la agrega al zip
-    await Promise.all(
-      post.images.map(async (img, idx) => {
-        const response = await fetch(img.url);
-        const blob = await response.blob();
-        const ext = img.format ? `.${img.format}` : '';
-        zip.file(img.filename || `image${idx + 1}${ext}`, blob);
-      })
-    );
-    const content = await zip.generateAsync({ type: 'blob' });
-    saveAs(content, `${post.title?.replace(/\s+/g, '_') || 'images'}.zip`);
+    
+    try {
+      const zip = new JSZip();
+      // Descarga cada imagen y la agrega al zip
+      await Promise.all(
+        post.images.map(async (img, idx) => {
+          const response = await fetch(img.url);
+          const blob = await response.blob();
+          const ext = img.format ? `.${img.format}` : '';
+          zip.file(img.filename || `image${idx + 1}${ext}`, blob);
+        })
+      );
+      const content = await zip.generateAsync({ type: 'blob' });
+      const zipFilename = `${post.title?.replace(/\s+/g, '_') || 'images'}.zip`;
+      saveAs(content, zipFilename);
+      
+      setDownloadAlert({
+        show: true,
+        message: `${post.images.length} images downloaded as ${zipFilename}`
+      });
+    } catch (error) {
+      console.error('Download failed:', error);
+    }
   };
 
   const handleEditClick = () => {
@@ -398,6 +421,13 @@ const PostDetail = () => {
         onCancel={() => setDeleteCommentId(null)}
         onConfirm={handleDeleteComment}
         loading={deleteLoading}
+      />
+      
+      {/* Alerta de descarga */}
+      <DownloadAlert
+        show={downloadAlert.show}
+        message={downloadAlert.message}
+        onClose={() => setDownloadAlert({ show: false, message: '' })}
       />
     </div>
   );
