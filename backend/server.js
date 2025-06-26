@@ -19,12 +19,15 @@ const corsOptions = {
       'http://localhost:3000',
       'http://localhost:5173', 
       'https://localhost:3000',
-      'https://localhost:5173'
-    ];
+      'https://localhost:5173',
+      'https://naw-ig.vercel.app',
+      process.env.CLIENT_URL
+    ].filter(Boolean); // Filtrar valores undefined/null
     
     // En desarrollo, permitir cualquier localhost
     if (!origin || allowedOrigins.indexOf(origin) !== -1 || 
-        (process.env.NODE_ENV === 'development' && origin?.includes('localhost'))) {
+        (process.env.NODE_ENV === 'development' && origin?.includes('localhost')) ||
+        origin?.includes('.vercel.app')) {
       callback(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
