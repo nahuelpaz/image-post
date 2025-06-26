@@ -10,7 +10,7 @@ import PostInfo from './PostDetail/PostInfo';
 import PostComments from './PostDetail/PostComments';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const PostDetail = () => {
   const { id } = useParams();
