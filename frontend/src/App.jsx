@@ -55,7 +55,14 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            <Route path="/search" element={<SearchPage />} />
+            <Route 
+              path="/search" 
+              element={
+                <ProtectedRoute>
+                  <SearchPage />
+                </ProtectedRoute>
+              } 
+            />
             <Route 
               path="/create-post" 
               element={
@@ -72,8 +79,22 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            <Route path="/tags/:tag" element={<TagPage />} />
-            <Route path="/explore" element={<Explore />} />
+            <Route 
+              path="/tags/:tag" 
+              element={
+                <ProtectedRoute>
+                  <TagPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/explore" 
+              element={
+                <ProtectedRoute>
+                  <Explore />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </div>
