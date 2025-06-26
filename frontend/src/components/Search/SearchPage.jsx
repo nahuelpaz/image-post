@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import Navbar from '../layout/Navbar';
 import UserCard from './UserCard';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
 const SearchPage = () => {
   const [query, setQuery] = useState('');
   const [users, setUsers] = useState([]);
@@ -16,7 +18,7 @@ const SearchPage = () => {
     try {
       // Buscar usuarios
       const usersRes = await fetch(
-        `http://localhost:5000/api/users/search?q=${encodeURIComponent(query)}`
+        `${API_BASE_URL}/users/search?q=${encodeURIComponent(query)}`
       );
       const usersData = await usersRes.json();
       setUsers(usersData.users || []);

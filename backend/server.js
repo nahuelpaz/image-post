@@ -12,10 +12,32 @@ const app = express();
 app.use(helmet());
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
-}));
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permitir requests sin origin (como mobile apps) o desde origins específicos
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5173', 
+      'https://localhost:3000',
+      'https://localhost:5173'
+    ];
+    
+    // En desarrollo, permitir cualquier localhost
+    if (!origin || allowedOrigins.indexOf(origin) !== -1 || 
+        (process.env.NODE_ENV === 'development' && origin?.includes('localhost'))) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 
 // Rate limiting
 const limiter = rateLimit({
