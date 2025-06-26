@@ -20,7 +20,7 @@ const PostImages = ({
     >
       <button
         onClick={() => handleDownloadImage(images[activeImage])}
-        className="absolute top-6 right-6 bg-black/70 hover:bg-black/90 rounded-full p-2 z-20 border border-neutral-800 transition"
+        className="absolute top-6 right-6 bg-black/70 hover:bg-black/90 rounded-full p-2 z-10 border border-neutral-800 transition"
         title="Download this image"
       >
         <Download className="w-6 h-6 text-white" />
