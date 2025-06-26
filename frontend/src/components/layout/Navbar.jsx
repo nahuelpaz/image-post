@@ -2,12 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Bell, Menu, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import NotificationDropdown from './NotificationDropdown';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { unreadCount, fetchUnreadCount } = useNotifications();
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -37,18 +38,15 @@ const Navbar = () => {
   useEffect(() => {
     if (user) {
       fetchUnreadCount();
-      // Set up polling for real-time updates (every 2 minutes instead of 30 seconds)
       const interval = setInterval(fetchUnreadCount, 120000);
       return () => clearInterval(interval);
     }
   }, [user, fetchUnreadCount]);
 
-  // Avatar por defecto si no tiene imagen
   const getAvatarSrc = () => {
     if (user?.avatar) {
       return user.avatar;
     }
-    // Avatar por defecto con las iniciales del usuario
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.username || 'User')}&background=262626&color=ffffff&size=32`;
   };
 
@@ -113,7 +111,7 @@ const Navbar = () => {
               </button>
             </div>
 
-            {/* Notifications - Always visible */}
+            {/* Notifications */}
             <div className="relative" ref={notificationsRef}>
               <button
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -133,7 +131,7 @@ const Navbar = () => {
               />
             </div>
 
-            {/* User Dropdown - Always visible */}
+            {/* User Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -148,7 +146,6 @@ const Navbar = () => {
                 <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-black border border-gray-800 rounded-lg shadow-lg py-1 z-50">
                   <div className="px-4 py-2 border-b border-gray-800">
@@ -186,7 +183,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu - Only navigation links */}
+      {/* Mobile menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden" ref={mobileMenuRef}>
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-800 bg-black">
@@ -224,6 +221,5 @@ const Navbar = () => {
     </nav>
   );
 };
-
 
 export default Navbar;

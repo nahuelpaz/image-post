@@ -10,7 +10,7 @@ import PostInfo from './PostDetail/PostInfo';
 import PostComments from './PostDetail/PostComments';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -309,20 +309,20 @@ const PostDetail = () => {
       }}
     >
       {/* Sticky header */}
-      <div className="sticky top-0 z-20 bg-black/95 backdrop-blur border-b border-neutral-900 flex items-center px-10 py-6 w-full max-w-7xl mx-auto">
+      <div className="sticky top-0 z-20 bg-black/95 backdrop-blur border-b border-neutral-900 flex items-center px-4 md:px-6 lg:px-8 xl:px-10 py-4 md:py-6 w-full max-w-7xl mx-auto">
         <button
           onClick={() => navigate(-1)}
-          className="mr-6 text-gray-400 hover:text-white transition-colors"
+          className="mr-4 md:mr-6 text-gray-400 hover:text-white transition-colors"
           aria-label="Back"
         >
-          <ArrowLeft className="w-7 h-7" />
+          <ArrowLeft className="w-6 h-6 md:w-7 md:h-7" />
         </button>
-        <h2 className="text-xl font-medium text-white tracking-wide">
+        <h2 className="text-lg md:text-xl font-medium text-white tracking-wide">
           Post
         </h2>
       </div>
 
-      <div className="w-full max-w-7xl mx-auto mt-12 mb-20 bg-black border border-neutral-900 rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden transition-all">
+      <div className="w-full max-w-7xl mx-4 md:mx-auto mt-6 md:mt-8 lg:mt-12 mb-12 md:mb-16 lg:mb-20 bg-black border border-neutral-900 rounded-2xl md:rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden transition-all">
         <PostImages
           images={post.images}
           activeImage={activeImage}
@@ -331,7 +331,7 @@ const PostDetail = () => {
           authorUsername={post.author?.username}
           postTitle={post.title}
         />
-        <div className="md:w-[30%] flex flex-col p-12 gap-8 bg-black">
+        <div className="md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%] flex flex-col p-6 md:p-8 lg:p-10 xl:p-12 gap-6 md:gap-8 bg-black">
           <PostInfo
             post={post}
             user={user}
