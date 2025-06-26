@@ -6,10 +6,11 @@ const DownloadAlert = ({ show, onClose, message, type = 'success' }) => {
 
   useEffect(() => {
     if (show) {
-      setIsVisible(true);
+      // Small delay to allow DOM to render before starting animation
+      setTimeout(() => setIsVisible(true), 50);
       const timer = setTimeout(() => {
         setIsVisible(false);
-        setTimeout(onClose, 300); // Wait for animation to complete
+        setTimeout(onClose, 200); // Wait for animation to complete
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -17,7 +18,7 @@ const DownloadAlert = ({ show, onClose, message, type = 'success' }) => {
 
   const handleClose = () => {
     setIsVisible(false);
-    setTimeout(onClose, 300);
+    setTimeout(onClose, 200);
   };
 
   if (!show) return null;
@@ -26,11 +27,11 @@ const DownloadAlert = ({ show, onClose, message, type = 'success' }) => {
     <div className="fixed top-4 right-4 z-50">
       <div
         className={`
-          transform transition-all duration-300 ease-in-out
-          ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}
+          transform transition-all duration-200 ease-out
+          ${isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-[-10px] opacity-0 scale-98'}
         `}
       >
-        <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl p-4 min-w-[320px] max-w-[400px]">
+        <div className="bg-black border border-neutral-800 rounded-xl shadow-2xl p-4 min-w-[320px] max-w-[400px]">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 mt-0.5">
               {type === 'success' ? (
