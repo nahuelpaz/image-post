@@ -1,16 +1,35 @@
 import { User, Check, CheckCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import AvatarModal from '../Profile/AvatarModal';
 
-const MessagesList = ({ 
+const MessagesList = forwardRef(({ 
   messages, 
   user, 
   currentConversation, 
   formatMessageTime 
-}) => {
+}, ref) => {
   const [avatarModal, setAvatarModal] = useState({ isOpen: false, src: '', username: '' });
+  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   
+  // Función para hacer scroll hacia abajo
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Exponer la función scrollToBottom al componente padre
+  useImperativeHandle(ref, () => ({
+    scrollToBottom
+  }));
+
+  // Efecto para hacer scroll al final cuando cambien los mensajes o la conversación
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, currentConversation?._id]);
+
   // Función para abrir modal del avatar
   const openAvatarModal = (avatarSrc, username) => {
     setAvatarModal({ isOpen: true, src: avatarSrc, username });
@@ -57,7 +76,10 @@ const MessagesList = ({
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div 
+        ref={messagesContainerRef}
+        className="flex-1 flex flex-col space-y-4"
+      >
         {messages.map((message) => {
           const isOwn = message.sender._id === user?.id || message.sender._id === user?._id;
           const messageStatus = getMessageStatus(message);
@@ -132,6 +154,9 @@ const MessagesList = ({
             </div>
           );
         })}
+        
+        {/* Elemento invisible para hacer scroll hacia abajo */}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Modal para ver avatar */}
@@ -143,6 +168,8 @@ const MessagesList = ({
       />
     </>
   );
-};
+});
+
+MessagesList.displayName = 'MessagesList';
 
 export default MessagesList;
