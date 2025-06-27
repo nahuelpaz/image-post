@@ -6,24 +6,34 @@ const PostImages = ({
   setActiveImage,
   handleDownloadImage,
   authorUsername,
-  postTitle
+  postTitle,
+  isMobile = false
 }) => {
   if (!images || images.length === 0) return null;
-  return (
-    <div
-      className="md:w-[70%] bg-black flex items-center justify-center p-12 border-r border-neutral-900 relative"
-      style={{
+  
+  const containerStyles = isMobile 
+    ? {
+        minHeight: 400,
+        height: 400,
+        maxHeight: 400,
+      }
+    : {
         minHeight: 700,
         height: 700,
         maxHeight: 700,
-      }}
+      };
+
+  return (
+    <div
+      className={`${isMobile ? 'w-full' : 'md:w-[70%]'} bg-black flex items-center justify-center ${isMobile ? 'p-4' : 'p-12'} ${!isMobile ? 'border-r border-neutral-900' : ''} relative`}
+      style={containerStyles}
     >
       <button
         onClick={() => handleDownloadImage(images[activeImage])}
-        className="absolute top-6 right-6 bg-black/70 hover:bg-black/90 rounded-full p-2 z-10 border border-neutral-800 transition"
+        className="absolute top-4 right-4 bg-black/70 hover:bg-black/90 rounded-full p-2 z-10 border border-neutral-800 transition"
         title="Download this image"
       >
-        <Download className="w-6 h-6 text-white" />
+        <Download className="w-5 h-5 text-white" />
       </button>
 
       {images.length > 1 && activeImage > 0 && (
@@ -59,7 +69,7 @@ const PostImages = ({
             height: 'auto',
             display: 'block',
             margin: '0 auto',
-            border: '4px solid #232323',
+            border: isMobile ? '2px solid #232323' : '4px solid #232323',
             position: 'relative',
             zIndex: 2
           }}
