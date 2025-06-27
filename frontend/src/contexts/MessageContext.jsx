@@ -71,6 +71,22 @@ export const MessageProvider = ({ children }) => {
     }
   };
 
+  // Función para marcar mensajes como leídos automáticamente cuando se reciben en la conversación actual
+  const markCurrentConversationAsRead = async () => {
+    if (!currentConversation) return;
+    
+    try {
+      // Recargar los mensajes para marcarlos como leídos
+      await fetchMessages(currentConversation._id);
+      
+      // Actualizar contador y conversaciones
+      await fetchUnreadCount();
+      await fetchConversations();
+    } catch (err) {
+      console.error('Error marking current conversation as read:', err);
+    }
+  };
+
   // Iniciar conversación
   const startConversation = async (username) => {
     try {
@@ -128,6 +144,29 @@ export const MessageProvider = ({ children }) => {
       return () => clearInterval(interval);
     }
   }, [user]);
+
+  // Efecto para marcar mensajes como leídos automáticamente en la conversación actual
+  useEffect(() => {
+    if (user && currentConversation) {
+      // Verificar cada 2 segundos si hay mensajes nuevos en la conversación actual
+      const interval = setInterval(async () => {
+        try {
+          // Obtener el estado actual de la conversación
+          const response = await messageService.getConversations(1, 20);
+          const currentConv = response.conversations.find(conv => conv._id === currentConversation._id);
+          
+          // Si hay mensajes no leídos en la conversación actual, marcarlos como leídos
+          if (currentConv && currentConv.unreadCount > 0) {
+            await markCurrentConversationAsRead();
+          }
+        } catch (err) {
+          console.error('Error checking for new messages:', err);
+        }
+      }, 2000); // Cambiado de 5000 a 2000 (2 segundos)
+
+      return () => clearInterval(interval);
+    }
+  }, [user, currentConversation]);
 
   const value = {
     conversations,
