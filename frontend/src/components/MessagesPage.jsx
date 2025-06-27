@@ -83,12 +83,11 @@ const MessagesPage = () => {
     }
 
     const recipientId = otherParticipant._id;
-    
+    setSendingMessage(true);
     try {
-      setSendingMessage(true);
       await sendMessage(recipientId, newMessage.trim());
       setNewMessage('');
-      
+      setSendingMessage(false); // <-- Ahora se desactiva apenas se envía
       // Hacer scroll hacia abajo después de enviar el mensaje
       setTimeout(() => {
         if (messagesListRef.current?.scrollToBottom) {
@@ -96,9 +95,8 @@ const MessagesPage = () => {
         }
       }, 100);
     } catch (err) {
-      console.error('Error sending message:', err);
-    } finally {
       setSendingMessage(false);
+      console.error('Error sending message:', err);
     }
   };
 
