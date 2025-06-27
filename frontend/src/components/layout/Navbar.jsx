@@ -1,13 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Bell, Menu, X } from 'lucide-react';
+import { ChevronDown, Bell, Menu, X, MessageCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { useMessages } from '../../contexts/MessageContext';
 import { Link, useNavigate } from 'react-router-dom';
 import NotificationDropdown from './NotificationDropdown';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { unreadCount, fetchUnreadCount } = useNotifications();
+  const { unreadCount: messageUnreadCount } = useMessages();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -110,6 +112,19 @@ const Navbar = () => {
                 )}
               </button>
             </div>
+
+            {/* Messages */}
+            <Link
+              to="/messages"
+              className="relative text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black rounded-lg transition-all p-2"
+            >
+              <MessageCircle className="w-5 h-5" />
+              {messageUnreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                  {messageUnreadCount > 99 ? '99+' : messageUnreadCount}
+                </span>
+              )}
+            </Link>
 
             {/* Notifications */}
             <div className="relative" ref={notificationsRef}>
@@ -214,6 +229,13 @@ const Navbar = () => {
               onClick={closeMobileMenu}
             >
               Create
+            </Link>
+            <Link 
+              to="/messages" 
+              className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium transition-colors"
+              onClick={closeMobileMenu}
+            >
+              Messages
             </Link>
           </div>
         </div>
