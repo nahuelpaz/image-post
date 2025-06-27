@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { messageService } from '../services/messageService';
 import { useAuth } from './AuthContext';
+import { io } from 'socket.io-client';
 
 const MessageContext = createContext();
 
@@ -21,6 +22,7 @@ export const MessageProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [error, setError] = useState('');
+  const socketRef = useRef(null);
 
   // Cargar conversaciones
   const fetchConversations = async () => {
@@ -39,17 +41,19 @@ export const MessageProvider = ({ children }) => {
   };
 
   // Cargar mensajes de una conversación
-  const fetchMessages = async (conversationId) => {
+  const fetchMessages = async (conversationId, showLoading = true) => {
     try {
-      setMessagesLoading(true);
-      setMessages([]); // Limpiar mensajes anteriores inmediatamente
+      if (showLoading) {
+        setMessagesLoading(true);
+        setMessages([]); // Limpiar mensajes solo si se muestra loading
+      }
       const response = await messageService.getMessages(conversationId);
       setMessages(response.messages || []);
     } catch (err) {
       setError(err.message);
       console.error('Error fetching messages:', err);
     } finally {
-      setMessagesLoading(false);
+      if (showLoading) setMessagesLoading(false);
     }
   };
 
@@ -57,15 +61,18 @@ export const MessageProvider = ({ children }) => {
   const sendMessage = async (recipientId, content, messageType = 'text') => {
     try {
       const response = await messageService.sendMessage(recipientId, content, messageType);
-      
-      // Agregar el mensaje a la lista actual si estamos en esa conversación
+      // Después de enviar, recargar los mensajes desde el backend SIN mostrar loading
       if (currentConversation) {
-        setMessages(prev => [...prev, response.data]);
+        await fetchMessages(currentConversation._id, false);
       }
-      
-      // Actualizar lista de conversaciones
-      await fetchConversations();
-      
+      // Actualizar la conversación actual en la lista de conversaciones
+      setConversations(prevConvs => prevConvs.map(conv =>
+        conv._id === currentConversation?._id
+          ? { ...conv, lastMessage: response.data, updatedAt: response.data.createdAt }
+          : conv
+      ));
+      // Actualizar contador de no leídos
+      await fetchUnreadCount();
       return response;
     } catch (err) {
       setError(err.message);
@@ -73,17 +80,36 @@ export const MessageProvider = ({ children }) => {
     }
   };
 
-  // Función para marcar mensajes como leídos automáticamente cuando se reciben en la conversación actual
+  // Marcar mensajes como leídos en la conversación actual (sin recargar todos los mensajes)
   const markCurrentConversationAsRead = async () => {
     if (!currentConversation) return;
-    
     try {
-      // Recargar los mensajes para marcarlos como leídos
-      await fetchMessages(currentConversation._id);
-      
+      // Obtener mensajes no leídos del usuario actual
+      const unreadMessages = messages.filter(
+        m => m.sender._id !== user?._id && m.sender._id !== user?.id && !(m.readBy || []).some(r => r.user === user?._id || r.user === user?.id)
+      );
+      // Marcar como leídos en el backend y actualizar localmente
+      await Promise.all(unreadMessages.map(async (msg) => {
+        await messageService.markMessageAsRead(msg._id);
+      }));
+      // Actualizar localmente los mensajes leídos para TODOS los mensajes recibidos
+      setMessages(prevMsgs => prevMsgs.map(msg => {
+        if (
+          msg.sender._id !== user?._id && msg.sender._id !== user?.id &&
+          !(msg.readBy || []).some(r => r.user === user?._id || r.user === user?.id)
+        ) {
+          return {
+            ...msg,
+            readBy: [...(msg.readBy || []), { user: user?._id || user?.id }]
+          };
+        }
+        return msg;
+      }));
       // Actualizar contador y conversaciones
       await fetchUnreadCount();
-      await fetchConversations();
+      setConversations(prevConvs => prevConvs.map(conv =>
+        conv._id === currentConversation._id ? { ...conv, unreadCount: 0 } : conv
+      ));
     } catch (err) {
       console.error('Error marking current conversation as read:', err);
     }
@@ -168,6 +194,63 @@ export const MessageProvider = ({ children }) => {
       }, 2000); // Cambiado de 5000 a 2000 (2 segundos)
 
       return () => clearInterval(interval);
+    }
+  }, [user, currentConversation]);
+
+  useEffect(() => {
+    if (user) {
+      // Conectar socket solo si hay usuario
+      socketRef.current = io(import.meta.env.VITE_API_BASE_URL.replace('/api', ''), {
+        withCredentials: true
+      });
+      socketRef.current.emit('join', user._id || user.id);
+
+      // Escuchar mensajes nuevos
+      socketRef.current.on('newMessage', async (message) => {
+        setConversations(prevConvs => {
+          // Si la conversación existe, actualiza lastMessage y unreadCount
+          const idx = prevConvs.findIndex(c => c._id === message.conversation);
+          if (idx !== -1) {
+            const updated = [...prevConvs];
+            updated[idx] = {
+              ...updated[idx],
+              lastMessage: message,
+              unreadCount: updated[idx]._id === currentConversation?._id && document.hasFocus() ? 0 : (updated[idx].unreadCount || 0) + 1
+            };
+            // Ordenar por lastMessageAt si quieres
+            return updated.sort((a, b) => new Date(b.lastMessage?.createdAt) - new Date(a.lastMessage?.createdAt));
+          } else {
+            // Si es una nueva conversación
+            return [
+              {
+                _id: message.conversation,
+                participants: [
+                  { _id: message.sender._id, username: message.sender.username, avatar: message.sender.avatar },
+                  { _id: user._id || user.id, username: user.username, avatar: user.avatar }
+                ],
+                lastMessage: message,
+                unreadCount: 1
+              },
+              ...prevConvs
+            ];
+          }
+        });
+        // Si el usuario está en la conversación actual, agregar el mensaje
+        if (currentConversation && message.conversation === currentConversation._id) {
+          setMessages(prevMsgs => {
+            if (prevMsgs.some(m => m._id === message._id)) return prevMsgs;
+            return [...prevMsgs, message];
+          });
+          // Si la ventana está activa, marcar como leído automáticamente
+          if (document.hasFocus()) {
+            await markCurrentConversationAsRead();
+          }
+        }
+      });
+
+      return () => {
+        socketRef.current.disconnect();
+      };
     }
   }, [user, currentConversation]);
 

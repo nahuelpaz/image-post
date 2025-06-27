@@ -5,8 +5,24 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 const fs = require('fs');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://localhost:3000',
+      'https://localhost:5173',
+      'https://naw-ig.vercel.app',
+      process.env.CLIENT_URL
+    ].filter(Boolean),
+    credentials: true
+  }
+});
 
 // Security middleware
 app.use(helmet());
@@ -104,9 +120,29 @@ app.use('*', (req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-const PORT = process.env.PORT || 5000;
+// Mapa para guardar los sockets por usuario
+const userSockets = new Map();
 
-app.listen(PORT, () => {
+io.on('connection', (socket) => {
+  // El frontend debe emitir 'join' con el userId después de autenticarse
+  socket.on('join', (userId) => {
+    userSockets.set(userId, socket.id);
+    socket.userId = userId;
+  });
+
+  socket.on('disconnect', () => {
+    if (socket.userId) {
+      userSockets.delete(socket.userId);
+    }
+  });
+});
+
+// Hacer accesible io y userSockets en las rutas
+app.set('io', io);
+app.set('userSockets', userSockets);
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Environment: ${process.env.NODE_ENV}`);
 });

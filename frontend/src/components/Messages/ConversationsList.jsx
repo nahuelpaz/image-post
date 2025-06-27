@@ -60,20 +60,22 @@ const ConversationsList = ({
                   <p className="text-white font-medium truncate">
                     {otherUser?.username || 'Unknown User'}
                   </p>
-                  {conversation.lastMessage && (
-                    <span className="text-xs text-gray-500">
-                      {formatMessageTime(conversation.lastMessage.createdAt)}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {conversation.lastMessage && (
+                      <span className="text-xs text-gray-500">
+                        {formatMessageTime(conversation.lastMessage.createdAt)}
+                      </span>
+                    )}
+                    {conversation.unreadCount > 0 && (
+                      <span className="w-2 h-2 bg-blue-500 rounded-full block" title="Nuevo mensaje"></span>
+                    )}
+                  </div>
                 </div>
                 {conversation.lastMessage && (
                   <p className="text-sm text-gray-400 truncate mt-1">
                     {conversation.lastMessage.sender.username === user?.username ? 'You: ' : ''}
                     {conversation.lastMessage.content}
                   </p>
-                )}
-                {conversation.unreadCount > 0 && (
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
                 )}
               </div>
             </div>

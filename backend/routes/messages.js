@@ -191,6 +191,19 @@ router.post('/send', auth, [
       { path: 'readBy.user', select: 'username' }
     ]);
 
+    // Emitir evento de Socket.IO a ambos usuarios
+    const io = req.app.get('io');
+    const userSockets = req.app.get('userSockets');
+    const recipientSocketId = userSockets.get(recipientId);
+    const senderSocketId = userSockets.get(req.user.id);
+
+    if (recipientSocketId) {
+      io.to(recipientSocketId).emit('newMessage', message);
+    }
+    if (senderSocketId && senderSocketId !== recipientSocketId) {
+      io.to(senderSocketId).emit('newMessage', message);
+    }
+
     res.status(201).json({
       message: 'Message sent successfully',
       data: message
