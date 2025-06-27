@@ -11,7 +11,8 @@ const PostComments = ({
   commentError,
   handleCommentSubmit,
   onDeleteComment,
-  isPostAuthor
+  isPostAuthor,
+  isMobile = false
 }) => {
   const [highlightedComment, setHighlightedComment] = useState(null);
   
@@ -42,8 +43,8 @@ const PostComments = ({
   }, [post.comments]);
 
   return (
-  <div className="mt-8">
-    <h3 className="text-base font-medium text-gray-400 mb-3 tracking-wide">
+  <div className={isMobile ? 'mt-4' : 'mt-8'}>
+    <h3 className={`${isMobile ? 'text-sm' : 'text-base'} font-medium text-gray-400 mb-3 tracking-wide`}>
       Comments
       <span className="ml-2 text-white font-semibold">
         ({post.comments?.length || 0})
@@ -81,7 +82,7 @@ const PostComments = ({
     {commentError && (
       <div className="text-red-500 text-xs mb-2">{commentError}</div>
     )}
-    <div className="space-y-4 max-h-56 overflow-y-auto pr-2">
+    <div className={`space-y-4 ${isMobile ? 'max-h-48' : 'max-h-56'} overflow-y-auto pr-2`}>
       {post.comments && post.comments.length > 0 ? (
         [...post.comments]
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))

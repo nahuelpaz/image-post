@@ -345,41 +345,195 @@ const PostDetail = () => {
         </h2>
       </div>
 
-      <div className="w-full max-w-7xl mx-4 md:mx-auto mt-6 md:mt-8 lg:mt-12 mb-12 md:mb-16 lg:mb-20 bg-black border border-neutral-900 rounded-2xl md:rounded-3xl shadow-2xl flex flex-col md:flex-row overflow-hidden transition-all">
-        <PostImages
-          images={post.images}
-          activeImage={activeImage}
-          setActiveImage={setActiveImage}
-          handleDownloadImage={handleDownloadImage}
-          authorUsername={post.author?.username}
-          postTitle={post.title}
-        />
-        <div className="md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%] flex flex-col p-6 md:p-8 lg:p-10 xl:p-12 gap-6 md:gap-8 bg-black">
-          <PostInfo
-            post={post}
-            user={user}
-            isAuthor={isAuthor}
-            menuRef={menuRef}
-            showMenu={showMenu}
-            setShowMenu={setShowMenu}
-            handleEditClick={handleEditClick}
-            handleDeleteClick={() => setShowDeleteModal(true)}
-            handleDownloadAll={handleDownloadAll}
-            isLiked={isLiked}
-            likeLoading={likeLoading}
-            handleLike={handleLike}
+      <div className="w-full max-w-7xl mx-4 md:mx-auto mt-6 md:mt-8 lg:mt-12 mb-12 md:mb-16 lg:mb-20 bg-black border border-neutral-900 rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden transition-all">
+        
+        {/* Mobile Layout */}
+        <div className="block md:hidden">
+          {/* Header móvil - arriba de la imagen */}
+          <div className="p-4 border-b border-neutral-900">
+            <div className="flex items-center justify-between">
+              <Link
+                to={`/profile/${post.author?.username}`}
+                className="flex items-center gap-3 group"
+                title={post.author?.username}
+              >
+                <div className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center overflow-hidden border border-neutral-800 shadow-lg group-hover:ring-2 group-hover:ring-blue-600 transition">
+                  {post.author?.avatar ? (
+                    <img src={post.author.avatar} alt={post.author.username} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-6 h-6 text-gray-600" />
+                  )}
+                </div>
+                <div>
+                  <div className="text-white font-medium text-sm tracking-wide">
+                    {post.author?.username || 'Unknown'}
+                  </div>
+                  <div className="text-xs text-gray-600 font-normal tracking-wide">
+                    {new Date(post.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              </Link>
+              
+              {isAuthor && (
+                <div className="relative" ref={menuRef}>
+                  <button
+                    onClick={() => setShowMenu(v => !v)}
+                    className="p-2 rounded-full hover:bg-neutral-800 transition"
+                    title="Options"
+                  >
+                    <MoreVertical className="w-5 h-5 text-white" />
+                  </button>
+                  {showMenu && (
+                    <div className="absolute right-0 mt-2 w-32 bg-neutral-900 border border-neutral-800 rounded shadow-lg z-30">
+                      <button
+                        onClick={handleEditClick}
+                        className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-neutral-800"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setShowDeleteModal(true)}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-neutral-800"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Imágenes móvil */}
+          <PostImages
+            images={post.images}
+            activeImage={activeImage}
+            setActiveImage={setActiveImage}
+            handleDownloadImage={handleDownloadImage}
+            authorUsername={post.author?.username}
+            postTitle={post.title}
+            isMobile={true}
           />
-          <PostComments
-            post={post}
-            user={user}
-            comment={comment}
-            setComment={setComment}
-            commentLoading={commentLoading}
-            commentError={commentError}
-            handleCommentSubmit={handleCommentSubmit}
-            onDeleteComment={commentId => setDeleteCommentId(commentId)}
-            isPostAuthor={isAuthor}
+
+          {/* Contenido debajo de la imagen en móvil */}
+          <div className="p-4 space-y-4">
+            {/* Botones de acción */}
+            <div className="flex items-center gap-6">
+              <button
+                onClick={handleLike}
+                disabled={likeLoading || !user}
+                className={`flex items-center gap-2 transition text-base font-medium focus:outline-none ${
+                  isLiked ? 'text-pink-500' : 'text-white hover:text-pink-500'
+                }`}
+                title={user ? (isLiked ? 'Unlike' : 'Like') : 'Login to like'}
+              >
+                <Heart className={`w-6 h-6 ${isLiked ? 'fill-pink-500' : 'fill-none'}`} />
+                <span>{post.likes?.length || 0}</span>
+              </button>
+              <span className="flex items-center gap-2 text-white text-base font-medium">
+                <MessageCircle className="w-6 h-6" />
+                <span>{post.comments?.length || 0}</span>
+              </span>
+              {post.images && post.images.length > 1 && (
+                <button
+                  onClick={handleDownloadAll}
+                  className="flex items-center gap-1 px-2 py-1 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded text-white text-xs font-medium transition whitespace-nowrap ml-auto"
+                  title="Download all images as ZIP"
+                >
+                  <Download className="w-4 h-4" />
+                  Download all
+                </button>
+              )}
+            </div>
+
+            {/* Título y descripción */}
+            <div>
+              <div className="text-sm text-white mb-2 leading-tight">
+                <Link 
+                  to={`/profile/${post.author?.username}`}
+                  className="font-bold hover:underline"
+                >
+                  {post.author?.username || 'Unknown'}
+                </Link>
+                {post.title && (
+                  <span className="ml-1 font-normal">{post.title}</span>
+                )}
+              </div>
+              {post.description && (
+                <p className="text-gray-300 text-sm mb-2 font-normal">{post.description}</p>
+              )}
+              <div className="text-gray-700 text-xs font-normal mb-2">{post.views || 0} views</div>
+            </div>
+
+            {/* Hashtags */}
+            {post.tags?.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {post.tags.map((tag, i) => (
+                  <Link
+                    to={`/tags/${encodeURIComponent(tag)}`}
+                    key={i}
+                    className="bg-neutral-900 text-white px-2 py-1 rounded-full text-xs font-medium shadow border border-neutral-800 tracking-wide hover:bg-blue-700 hover:text-white transition"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* Comentarios móvil */}
+            <PostComments
+              post={post}
+              user={user}
+              comment={comment}
+              setComment={setComment}
+              commentLoading={commentLoading}
+              commentError={commentError}
+              handleCommentSubmit={handleCommentSubmit}
+              onDeleteComment={commentId => setDeleteCommentId(commentId)}
+              isPostAuthor={isAuthor}
+              isMobile={true}
+            />
+          </div>
+        </div>
+
+        {/* Desktop Layout */}
+        <div className="hidden md:flex">
+          <PostImages
+            images={post.images}
+            activeImage={activeImage}
+            setActiveImage={setActiveImage}
+            handleDownloadImage={handleDownloadImage}
+            authorUsername={post.author?.username}
+            postTitle={post.title}
           />
+          <div className="md:w-[45%] lg:w-[40%] xl:w-[35%] 2xl:w-[30%] flex flex-col p-6 md:p-8 lg:p-10 xl:p-12 gap-6 md:gap-8 bg-black">
+            <PostInfo
+              post={post}
+              user={user}
+              isAuthor={isAuthor}
+              menuRef={menuRef}
+              showMenu={showMenu}
+              setShowMenu={setShowMenu}
+              handleEditClick={handleEditClick}
+              handleDeleteClick={() => setShowDeleteModal(true)}
+              handleDownloadAll={handleDownloadAll}
+              isLiked={isLiked}
+              likeLoading={likeLoading}
+              handleLike={handleLike}
+            />
+            <PostComments
+              post={post}
+              user={user}
+              comment={comment}
+              setComment={setComment}
+              commentLoading={commentLoading}
+              commentError={commentError}
+              handleCommentSubmit={handleCommentSubmit}
+              onDeleteComment={commentId => setDeleteCommentId(commentId)}
+              isPostAuthor={isAuthor}
+            />
+          </div>
         </div>
       </div>
       {/* Modal para editar post */}
