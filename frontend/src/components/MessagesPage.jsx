@@ -123,7 +123,7 @@ const MessagesPage = () => {
 
   return (
     <div 
-      className="min-h-screen bg-black flex"
+      className="h-screen bg-black flex overflow-hidden"
       style={{
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
       }}

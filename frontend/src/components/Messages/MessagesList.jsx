@@ -16,7 +16,15 @@ const MessagesList = forwardRef(({
   // Función para hacer scroll hacia abajo
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      // Buscar el contenedor padre que tiene overflow-y-auto (el contenedor del chat)
+      const scrollContainer = messagesEndRef.current.closest('[class*="overflow-y-auto"]');
+      if (scrollContainer) {
+        // Hacer scroll solo dentro del contenedor del chat
+        scrollContainer.scrollTo({
+          top: scrollContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
     }
   };
 
