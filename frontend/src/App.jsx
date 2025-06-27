@@ -1,12 +1,14 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { MessageProvider } from './contexts/MessageContext';
 import LoginForm from './components/auth/LoginForm';
 import RegisterForm from './components/auth/RegisterForm';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile/Profile';
 import Settings from './components/Settings/Settings';
 import NotificationsPage from './components/NotificationsPage';
+import MessagesPage from './components/MessagesPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import SearchPage from './components/Search/SearchPage';
 import CreatePost from './components/CreatePost';
@@ -18,6 +20,7 @@ function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
+        <MessageProvider>
         <Router>
         <div className="App">
           <Routes>
@@ -52,6 +55,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <NotificationsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/messages" 
+              element={
+                <ProtectedRoute>
+                  <MessagesPage />
                 </ProtectedRoute>
               } 
             />
@@ -99,6 +110,7 @@ function App() {
           </Routes>
         </div>
       </Router>
+        </MessageProvider>
       </NotificationProvider>
     </AuthProvider>
   );
