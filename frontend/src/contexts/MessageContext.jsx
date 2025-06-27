@@ -19,6 +19,7 @@ export const MessageProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [messagesLoading, setMessagesLoading] = useState(false);
   const [error, setError] = useState('');
 
   // Cargar conversaciones
@@ -40,14 +41,15 @@ export const MessageProvider = ({ children }) => {
   // Cargar mensajes de una conversación
   const fetchMessages = async (conversationId) => {
     try {
-      setLoading(true);
+      setMessagesLoading(true);
+      setMessages([]); // Limpiar mensajes anteriores inmediatamente
       const response = await messageService.getMessages(conversationId);
       setMessages(response.messages || []);
     } catch (err) {
       setError(err.message);
       console.error('Error fetching messages:', err);
     } finally {
-      setLoading(false);
+      setMessagesLoading(false);
     }
   };
 
@@ -113,7 +115,10 @@ export const MessageProvider = ({ children }) => {
 
   // Seleccionar conversación actual
   const selectConversation = async (conversation) => {
+    // Limpiar mensajes inmediatamente al cambiar de conversación
+    setMessages([]);
     setCurrentConversation(conversation);
+    
     if (conversation) {
       // Si la conversación tiene mensajes no leídos, actualizar el contador inmediatamente
       if (conversation.unreadCount > 0) {
@@ -128,8 +133,6 @@ export const MessageProvider = ({ children }) => {
       
       // Sincronizar el contador real con el servidor
       await fetchUnreadCount();
-    } else {
-      setMessages([]);
     }
   };
 
@@ -174,6 +177,7 @@ export const MessageProvider = ({ children }) => {
     messages,
     unreadCount,
     loading,
+    messagesLoading,
     error,
     fetchConversations,
     fetchMessages,

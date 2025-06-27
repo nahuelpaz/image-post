@@ -1,12 +1,18 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MessageCircle, UserPlus, UserMinus } from 'lucide-react';
 import { profileService } from '../../services/profileService';
+import { useMessages } from '../../contexts/MessageContext';
 import FollowersModal from './FollowersModal';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileStats from './ProfileStats';
 import AvatarModal from './AvatarModal';
 
 const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile }) => {
+  const navigate = useNavigate();
+  const { startConversation, selectConversation } = useMessages();
   const [avatarLoading, setAvatarLoading] = useState(false);
+  const [messageLoading, setMessageLoading] = useState(false);
   const [showFollowers, setShowFollowers] = useState(false);
   const [followersData, setFollowersData] = useState([]);
   const [loadingFollowers, setLoadingFollowers] = useState(false);
@@ -44,6 +50,26 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
     // Solo abrir modal si tiene avatar real (no generado)
     if (profile?.avatar) {
       setShowAvatarModal(true);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!profile?.username) return;
+    
+    try {
+      setMessageLoading(true);
+      // Intentar iniciar/encontrar conversación con el usuario
+      const conversation = await startConversation(profile.username);
+      
+      // Seleccionar la conversación
+      await selectConversation(conversation);
+      
+      // Navegar a la página de mensajes con el chat ya abierto
+      navigate('/messages', { state: { openChat: true, conversation } });
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+    } finally {
+      setMessageLoading(false);
     }
   };
 
@@ -121,16 +147,31 @@ const ProfileHeader = ({ profile, isOwnProfile, onFollowToggle, onEditProfile })
               Edit Profile
             </button>
           ) : (
-            <button 
-              onClick={onFollowToggle}
-              className={`px-4 py-2 font-semibold rounded-lg transition-all duration-200 ${
-                profile?.isFollowing 
-                  ? 'bg-transparent border border-gray-600 text-white hover:bg-neutral-900 hover:border-gray-600' 
-                  : 'bg-white text-black hover:bg-gray-50 border border-white'
-              }`}
-            >
-              {profile?.isFollowing ? 'Unfollow' : 'Follow'}
-            </button>
+            <div className="flex flex-row gap-3 justify-center md:justify-start">
+              <button 
+                onClick={onFollowToggle}
+                className={`px-4 py-2 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
+                  profile?.isFollowing 
+                    ? 'bg-transparent border border-gray-600 text-white hover:bg-neutral-900 hover:border-gray-600' 
+                    : 'bg-white text-black hover:bg-gray-50 border border-white'
+                }`}
+                title={profile?.isFollowing ? 'Unfollow user' : 'Follow user'}
+              >
+                {profile?.isFollowing ? <UserMinus className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
+              </button>
+              <button 
+                onClick={handleSendMessage}
+                disabled={messageLoading}
+                className="px-4 py-2 bg-neutral-700 text-white font-semibold rounded-lg hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+                title="Send message"
+              >
+                {messageLoading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                ) : (
+                  <MessageCircle className="w-5 h-5" />
+                )}
+              </button>
+            </div>
           )}
         </div>
 

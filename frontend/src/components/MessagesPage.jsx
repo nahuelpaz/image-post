@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useMessages } from '../contexts/MessageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft, Send, Plus, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 // Import components
 import ConversationsList from './Messages/ConversationsList';
@@ -13,12 +13,14 @@ import AvatarModal from './Profile/AvatarModal';
 
 const MessagesPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const {
     conversations,
     currentConversation,
     messages,
     loading,
+    messagesLoading,
     error,
     selectConversation,
     sendMessage,
@@ -29,6 +31,20 @@ const MessagesPage = () => {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [showNewChat, setShowNewChat] = useState(false);
   const [avatarModal, setAvatarModal] = useState({ isOpen: false, src: '', username: '' });
+  const [showMobileChat, setShowMobileChat] = useState(false);
+  const messagesListRef = useRef(null);
+
+  // Efecto para abrir chat automáticamente cuando viene del perfil
+  useEffect(() => {
+    if (location.state?.openChat && location.state?.conversation) {
+      // En móvil, abrir el chat directamente
+      if (window.innerWidth < 768) {
+        setShowMobileChat(true);
+      }
+      // Limpiar el state para evitar que se ejecute múltiples veces
+      navigate('/messages', { replace: true });
+    }
+  }, [location.state, navigate]);
 
   // Función para abrir modal del avatar
   const openAvatarModal = (avatarSrc, username) => {
@@ -38,6 +54,18 @@ const MessagesPage = () => {
   // Función para cerrar modal del avatar
   const closeAvatarModal = () => {
     setAvatarModal({ isOpen: false, src: '', username: '' });
+  };
+
+  // Función para manejar selección de conversación (mobile + desktop)
+  const handleSelectConversation = (conversation) => {
+    selectConversation(conversation);
+    // En mobile, mostrar la vista de chat
+    setShowMobileChat(true);
+  };
+
+  // Función para volver a la lista de conversaciones en mobile
+  const handleBackToConversations = () => {
+    setShowMobileChat(false);
   };
 
   const handleSendMessage = async (e) => {
@@ -60,6 +88,13 @@ const MessagesPage = () => {
       setSendingMessage(true);
       await sendMessage(recipientId, newMessage.trim());
       setNewMessage('');
+      
+      // Hacer scroll hacia abajo después de enviar el mensaje
+      setTimeout(() => {
+        if (messagesListRef.current?.scrollToBottom) {
+          messagesListRef.current.scrollToBottom();
+        }
+      }, 100);
     } catch (err) {
       console.error('Error sending message:', err);
     } finally {
@@ -94,7 +129,7 @@ const MessagesPage = () => {
       }}
     >
       {/* Lista de conversaciones - Sidebar */}
-      <div className="w-full md:w-80 lg:w-96 border-r border-neutral-900 flex flex-col bg-black">
+      <div className={`w-full md:w-80 lg:w-96 border-r border-neutral-900 flex flex-col bg-black ${showMobileChat ? 'hidden md:flex' : 'flex'}`}>
         {/* Header */}
         <div className="sticky top-0 bg-black/95 backdrop-blur border-b border-neutral-900 p-4">
           <div className="flex items-center justify-between h-8">
@@ -123,7 +158,7 @@ const MessagesPage = () => {
           <ConversationsList
             conversations={conversations}
             currentConversation={currentConversation}
-            selectConversation={selectConversation}
+            selectConversation={handleSelectConversation}
             loading={loading}
             formatMessageTime={formatMessageTime}
             user={user}
@@ -132,12 +167,21 @@ const MessagesPage = () => {
       </div>
 
       {/* Área de chat */}
-      <div className="hidden md:flex flex-1 flex-col">
+      <div className={`flex-1 flex-col ${showMobileChat ? 'flex' : 'hidden md:flex'}`}>
         {currentConversation ? (
           <>
             {/* Header del chat */}
             <div className="sticky top-0 bg-black/95 backdrop-blur border-b border-neutral-900 p-4">
               <div className="flex items-center gap-3 h-8">
+                {/* Botón back solo en mobile */}
+                <button
+                  onClick={handleBackToConversations}
+                  className="md:hidden text-gray-400 hover:text-white transition-colors mr-2"
+                  aria-label="Back to conversations"
+                >
+                  <ArrowLeft className="w-6 h-6" />
+                </button>
+                
                 {(() => {
                   // Encontrar el participante que NO es el usuario actual
                   const otherUser = currentConversation.participants.find(
@@ -177,12 +221,22 @@ const MessagesPage = () => {
 
             {/* Mensajes */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              <MessagesList
-                messages={messages}
-                user={user}
-                currentConversation={currentConversation}
-                formatMessageTime={formatMessageTime}
-              />
+              {messagesLoading ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+                    <p className="text-gray-400 text-sm">Loading messages...</p>
+                  </div>
+                </div>
+              ) : (
+                <MessagesList
+                  ref={messagesListRef}
+                  messages={messages}
+                  user={user}
+                  currentConversation={currentConversation}
+                  formatMessageTime={formatMessageTime}
+                />
+              )}
             </div>
 
             {/* Input de mensaje */}

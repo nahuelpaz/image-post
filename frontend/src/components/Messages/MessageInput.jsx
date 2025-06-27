@@ -17,11 +17,11 @@ const MessageInput = ({
             placeholder="Message..."
             className="w-full px-5 py-3 bg-neutral-900 border border-neutral-800 rounded-full text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 focus:bg-neutral-800 transition-all duration-200 text-sm"
             disabled={sendingMessage}
-            maxLength={1000}
+            maxLength={500}
           />
           {newMessage.trim() && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
-              {1000 - newMessage.length}
+              {500 - newMessage.length}
             </div>
           )}
         </div>
