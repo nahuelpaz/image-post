@@ -143,7 +143,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="absolute right-0 mt-2 w-80 bg-black border border-gray-800 rounded-lg shadow-xl z-50 max-h-96 overflow-hidden">
+    <div className="absolute -right-4 sm:right-0 mt-2 w-72 sm:w-80 bg-black border border-gray-800 rounded-lg shadow-xl z-50 max-h-96 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-800">
         <h3 className="text-white font-semibold">Notifications</h3>
