@@ -86,79 +86,67 @@ const MessagesList = forwardRef(({
     <>
       <div 
         ref={messagesContainerRef}
-        className="flex-1 flex flex-col space-y-4"
+        className="flex-1 flex flex-col space-y-4 px-4"
       >
         {messages.map((message) => {
           const isOwn = message.sender._id === user?.id || message.sender._id === user?._id;
           const messageStatus = getMessageStatus(message);
-          
           return (
             <div
               key={message._id}
-              className={`flex items-end gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}
+              className={`flex items-start gap-2 ${isOwn ? 'ml-auto' : ''}`}
             >
-              {/* Avatar del remitente (solo para mensajes recibidos) */}
-              {!isOwn && (
-                <button
-                  onClick={() => message.sender?.avatar && openAvatarModal(message.sender.avatar, message.sender.username)}
-                  className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden flex-shrink-0 mb-1 hover:ring-2 hover:ring-blue-600 transition group cursor-pointer"
-                  title={message.sender?.avatar ? `View ${message.sender?.username}'s avatar` : 'No avatar to view'}
-                  disabled={!message.sender?.avatar}
-                >
-                  {message.sender?.avatar ? (
-                    <img 
-                      src={message.sender.avatar} 
-                      alt={message.sender.username}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User className="w-4 h-4 text-gray-600" />
-                  )}
-                </button>
-              )}
-
-              <div
-                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                  isOwn
-                    ? 'bg-neutral-600 text-white border border-neutral-500'
-                    : 'bg-neutral-900 text-white border border-neutral-800'
-                }`}
+              {/* Para mensajes propios, mantener el orden igual que los ajenos, sin desplazar más a la derecha */}
+              <button
+                onClick={() => message.sender?.avatar && openAvatarModal(message.sender.avatar, message.sender.username)}
+                className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-blue-600 transition group cursor-pointer mt-0"
+                title={message.sender?.avatar ? `View ${message.sender?.username}'s avatar` : 'No avatar to view'}
+                disabled={!message.sender?.avatar}
+                style={{ alignSelf: 'flex-start' }}
               >
-                {/* Nombre del usuario y fecha (solo para mensajes recibidos) */}
-                {!isOwn && (
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <Link
-                      to={`/profile/${message.sender?.username}`}
-                      className="text-xs text-gray-400 font-medium hover:text-white transition-colors"
-                      title={`Go to ${message.sender?.username}'s profile`}
-                    >
-                      {message.sender?.username}
-                    </Link>
-                    <p className="text-xs text-gray-500 flex-shrink-0">
-                      {formatMessageTime(message.createdAt)}
-                    </p>
-                  </div>
+                {message.sender?.avatar ? (
+                  <img 
+                    src={message.sender.avatar} 
+                    alt={message.sender.username}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-4 h-4 text-gray-600" />
                 )}
-                
-                <p className="text-sm">{message.content}</p>
-                
-                {/* Solo mostrar timestamp y checks para mensajes propios */}
-                {isOwn && (
-                  <div className={`flex items-center justify-end gap-1 mt-1`}>
-                    <p className="text-xs text-gray-200">
-                      {formatMessageTime(message.createdAt)}
-                    </p>
-                    {messageStatus && (
-                      <div className="ml-1">
-                        {renderMessageStatusIcon(messageStatus)}
-                      </div>
-                    )}
+              </button>
+              <div className="flex flex-col min-h-10 justify-start max-w-xs lg:max-w-md">
+                <div className="flex items-center gap-2 mb-1">
+                  <Link
+                    to={`/profile/${message.sender?.username}`}
+                    className="text-xs text-gray-400 font-medium hover:text-white transition-colors"
+                    title={`Go to ${message.sender?.username}'s profile`}
+                  >
+                    {message.sender?.username}
+                  </Link>
+                  <p className="text-xs text-gray-500 flex-shrink-0">
+                    {formatMessageTime(message.createdAt)}
+                  </p>
+                </div>
+                {/* Renderiza imagen si es un mensaje de tipo image (GIF o imagen) */}
+                {message.messageType === 'image' && message.image ? (
+                  <img
+                    src={message.image}
+                    alt={message.content || 'GIF'}
+                    className="max-w-xs lg:max-w-md rounded-xl mb-1"
+                    style={{ maxHeight: 240 }}
+                  />
+                ) : (
+                  <p className="text-sm text-white break-words">{message.content}</p>
+                )}
+                {/* Solo mostrar checks para mensajes propios */}
+                {isOwn && messageStatus && (
+                  <div className="flex items-center justify-end gap-1 mt-1">
+                    <div className="ml-1">
+                      {renderMessageStatusIcon(messageStatus)}
+                    </div>
                   </div>
                 )}
               </div>
-
-              {/* Espaciador para mensajes propios para mantener simetría */}
-              {isOwn && <div className="w-8"></div>}
             </div>
           );
         })}
