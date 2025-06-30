@@ -84,10 +84,10 @@ const MessagesPage = () => {
 
     const recipientId = otherParticipant._id;
     setSendingMessage(true);
+    setNewMessage(''); // Limpiar el input inmediatamente
     try {
       await sendMessage(recipientId, newMessage.trim());
-      setNewMessage('');
-      setSendingMessage(false); // <-- Ahora se desactiva apenas se envía
+      setSendingMessage(false);
       // Hacer scroll hacia abajo después de enviar el mensaje
       setTimeout(() => {
         if (messagesListRef.current?.scrollToBottom) {
@@ -243,6 +243,9 @@ const MessagesPage = () => {
               setNewMessage={setNewMessage}
               sendingMessage={sendingMessage}
               handleSendMessage={handleSendMessage}
+              currentConversation={currentConversation}
+              user={user}
+              sendMessage={sendMessage}
             />
           </>
         ) : (

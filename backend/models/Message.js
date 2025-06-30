@@ -13,7 +13,9 @@ const messageSchema = new mongoose.Schema({
   },
   content: {
     type: String,
-    required: true,
+    required: function() {
+      return this.messageType === 'text';
+    },
     maxlength: [1000, 'Message cannot exceed 1000 characters']
   },
   messageType: {

@@ -1,4 +1,4 @@
-import { User } from 'lucide-react';
+import { User, Image as ImageIcon } from 'lucide-react';
 
 const ConversationsList = ({ 
   conversations, 
@@ -72,9 +72,11 @@ const ConversationsList = ({
                   </div>
                 </div>
                 {conversation.lastMessage && (
-                  <p className="text-sm text-gray-400 truncate mt-1">
+                  <p className="text-sm text-gray-400 truncate mt-1 flex items-center gap-1">
                     {conversation.lastMessage.sender.username === user?.username ? 'You: ' : ''}
-                    {conversation.lastMessage.content}
+                    {conversation.lastMessage.messageType === 'image'
+                      ? (<span className="inline-flex items-center gap-1">GIF <ImageIcon className="w-4 h-4 text-gray-400 inline" /></span>)
+                      : conversation.lastMessage.content}
                   </p>
                 )}
               </div>

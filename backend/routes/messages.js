@@ -132,8 +132,10 @@ router.get('/:conversationId', auth, async (req, res) => {
 // @desc    Send a new message
 router.post('/send', auth, [
   body('recipientId').notEmpty().withMessage('Recipient ID is required'),
-  body('content').trim().isLength({ min: 1, max: 1000 }).withMessage('Message content must be 1-1000 characters'),
-  body('messageType').optional().isIn(['text', 'image']).withMessage('Invalid message type')
+  body('messageType').optional().isIn(['text', 'image']).withMessage('Invalid message type'),
+  // Validación condicional:
+  body('content').if(body('messageType').equals('text')).trim().isLength({ min: 1, max: 1000 }).withMessage('Message content must be 1-1000 characters'),
+  body('image').if(body('messageType').equals('image')).notEmpty().withMessage('Image URL is required for image messages')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
