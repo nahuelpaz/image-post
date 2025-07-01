@@ -105,7 +105,7 @@ const MessagesList = forwardRef(({
     <>
       <div 
         ref={messagesContainerRef}
-        className="flex-1 flex flex-col space-y-4 px-4"
+        className="flex-1 flex flex-col space-y-4 px-4 pb-4"
       >
         {messages.map((message, idx) => {
           const isOwn = message.sender._id === user?.id || message.sender._id === user?._id;
@@ -116,7 +116,7 @@ const MessagesList = forwardRef(({
               key={message._id}
               className={`flex items-start gap-2 ${isOwn ? 'ml-auto' : ''}`}
             >
-              {/* Para mensajes propios, mantener el orden igual que los ajenos, sin desplazar más a la derecha */}
+              {/* Avatar */}
               <button
                 onClick={() => message.sender?.avatar && openAvatarModal(message.sender.avatar, message.sender.username)}
                 className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-blue-600 transition group cursor-pointer mt-0"
@@ -134,11 +134,12 @@ const MessagesList = forwardRef(({
                   <User className="w-4 h-4 text-gray-600" />
                 )}
               </button>
-              <div className="flex flex-col min-h-10 justify-start max-w-xs lg:max-w-md">
-                <div className="flex items-center gap-2 mb-1">
+              {/* Mensaje */}
+              <div className="flex flex-col min-h-10 justify-start max-w-xs lg:max-w-md w-full md:w-auto">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <Link
                     to={`/profile/${message.sender?.username}`}
-                    className="text-xs text-gray-400 font-medium hover:text-white transition-colors"
+                    className="text-xs text-gray-400 font-medium hover:text-white transition-colors truncate max-w-[120px]"
                     title={`Go to ${message.sender?.username}'s profile`}
                   >
                     {message.sender?.username}
@@ -152,12 +153,12 @@ const MessagesList = forwardRef(({
                   <img
                     src={message.image}
                     alt={message.content || 'GIF'}
-                    className="max-w-xs lg:max-w-md rounded-xl mb-1"
-                    style={{ maxHeight: 240 }}
+                    className="rounded-xl mb-1 max-w-[70vw] sm:max-w-xs lg:max-w-md"
+                    style={{ maxHeight: 180, width: 'auto', height: 'auto' }}
                     ref={isLast ? lastGifRef : null}
                   />
                 ) : (
-                  <p className="text-sm text-white break-words">{message.content}</p>
+                  <p className="text-sm text-white break-words max-w-[70vw] sm:max-w-xs lg:max-w-md">{message.content}</p>
                 )}
                 {/* Solo mostrar checks para mensajes propios */}
                 {isOwn && messageStatus && (
@@ -171,7 +172,6 @@ const MessagesList = forwardRef(({
             </div>
           );
         })}
-        
         {/* Elemento invisible para hacer scroll hacia abajo */}
         <div ref={messagesEndRef} />
       </div>
