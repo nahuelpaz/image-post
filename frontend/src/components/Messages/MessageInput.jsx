@@ -72,7 +72,6 @@ const MessageInput = ({
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Message..."
             className="w-full px-5 py-3 bg-neutral-900 border border-neutral-800 rounded-full text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 focus:bg-neutral-800 transition-all duration-200 text-sm pr-24"
-            disabled={sendingMessage}
             maxLength={500}
           />
           {newMessage.trim() && (
