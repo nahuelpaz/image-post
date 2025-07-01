@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
-import { Send, Smile, Film } from 'lucide-react';
-import EmojiPicker from 'emoji-picker-react';
-import GifPicker from 'gif-picker-react';
+import { Send, Smile } from 'lucide-react';
+import GifPickerModal from './GifPickerModal';
+import EmojiPickerModal from './EmojiPickerModal';
 
 const TENOR_API_KEY = import.meta.env.VITE_TENOR_API_KEY;
 
@@ -106,46 +106,19 @@ const MessageInput = ({
           >
             GIF
           </button>
-          {/* Picker de emojis */}
-          {showEmojiPicker && (
-            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 sm:left-auto sm:right-12 sm:translate-x-0">
-              <EmojiPicker
-                onEmojiClick={handleSelectEmoji}
-                theme="dark"
-                width={320}
-                height={400}
-              />
-            </div>
-          )}
-          {/* Picker de GIFs sin botón de volver */}
-          {showGifPicker && (
-            <>
-              {/* Mobile: centrado absoluto con fondo clickeable para cerrar */}
-              <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:hidden" onClick={() => setShowGifPicker(false)}>
-                <div className="mb-20 bg-neutral-900 rounded-xl shadow-lg border border-neutral-800" style={{ width: 400 }} onClick={e => e.stopPropagation()}>
-                  <GifPicker
-                    tenorApiKey={TENOR_API_KEY}
-                    onGifClick={handleSelectGif}
-                    width={400}
-                    height={400}
-                    theme="dark"
-                    autoFocusSearch={true}
-                  />
-                </div>
-              </div>
-              {/* Desktop: posición original a la derecha */}
-              <div className="hidden sm:block absolute bottom-12 right-0 z-50 bg-neutral-900 rounded-xl shadow-lg border border-neutral-800" style={{ width: 400 }}>
-                <GifPicker
-                  tenorApiKey={TENOR_API_KEY}
-                  onGifClick={handleSelectGif}
-                  width={400}
-                  height={400}
-                  theme="dark"
-                  autoFocusSearch={true}
-                />
-              </div>
-            </>
-          )}
+          {/* Picker de emojis como componente aparte */}
+          <EmojiPickerModal
+            open={showEmojiPicker}
+            onClose={() => setShowEmojiPicker(false)}
+            onEmojiSelect={handleSelectEmoji}
+          />
+          {/* Picker de GIFs como componente aparte */}
+          <GifPickerModal
+            open={showGifPicker}
+            onClose={() => setShowGifPicker(false)}
+            onGifSelect={handleSelectGif}
+            tenorApiKey={TENOR_API_KEY}
+          />
         </div>
         <button
           type="submit"

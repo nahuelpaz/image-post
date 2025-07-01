@@ -10,6 +10,7 @@ import MessagesList from './Messages/MessagesList';
 import MessageInput from './Messages/MessageInput';
 import NewChatModal from './Messages/NewChatModal';
 import AvatarModal from './Profile/AvatarModal';
+import ChatHeader from './Messages/ChatHeader';
 
 const MessagesPage = () => {
   const navigate = useNavigate();
@@ -112,10 +113,8 @@ const MessagesPage = () => {
         hour12: true 
       });
     } else {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric' 
-      });
+      // Fecha y hora si es viejo
+      return `${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
     }
   };
 
@@ -168,55 +167,13 @@ const MessagesPage = () => {
       <div className={`flex-1 flex-col ${showMobileChat ? 'flex' : 'hidden md:flex'}`}>
         {currentConversation ? (
           <>
-            {/* Header del chat */}
-            <div className="sticky top-0 bg-black/95 backdrop-blur border-b border-neutral-900 p-4">
-              <div className="flex items-center gap-3 h-8">
-                {/* Botón back solo en mobile */}
-                <button
-                  onClick={handleBackToConversations}
-                  className="md:hidden text-gray-400 hover:text-white transition-colors mr-2"
-                  aria-label="Back to conversations"
-                >
-                  <ArrowLeft className="w-6 h-6" />
-                </button>
-                
-                {(() => {
-                  // Encontrar el participante que NO es el usuario actual
-                  const otherUser = currentConversation.participants.find(
-                    participant => participant._id !== user?.id && participant._id !== user?._id
-                  );
-                  
-                  return (
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => otherUser?.avatar && openAvatarModal(otherUser.avatar, otherUser.username)}
-                        className="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-blue-600 transition"
-                        title={otherUser?.avatar ? `View ${otherUser?.username}'s avatar` : 'No avatar to view'}
-                        disabled={!otherUser?.avatar}
-                      >
-                        {otherUser?.avatar ? (
-                          <img 
-                            src={otherUser.avatar} 
-                            alt={otherUser.username}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <User className="w-4 h-4 text-gray-600" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => navigate(`/profile/${otherUser?.username}`)}
-                        className="text-xl font-semibold text-white hover:text-gray-300 transition-colors"
-                        title={`Go to ${otherUser?.username}'s profile`}
-                      >
-                        {otherUser?.username || 'Unknown User'}
-                      </button>
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
-
+            {/* Header del chat extraído a componente */}
+            <ChatHeader
+              otherUser={currentConversation.participants.find(
+                participant => participant._id !== user?.id && participant._id !== user?._id
+              )}
+              openAvatarModal={openAvatarModal}
+            />
             {/* Mensajes */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messagesLoading ? (
@@ -236,7 +193,6 @@ const MessagesPage = () => {
                 />
               )}
             </div>
-
             {/* Input de mensaje */}
             <MessageInput
               newMessage={newMessage}
