@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Send, Smile } from 'lucide-react';
-import GifPicker from 'gif-picker-react';
-import EmojiPicker from 'emoji-picker-react';
+import GifPickerModal from './GifPickerModal';
+import EmojiPickerModal from './EmojiPickerModal';
 import ImageUploadButton from './ImageUploadButton';
 import { uploadImage } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -38,7 +38,6 @@ const MessageInput = ({
       newMessage.substring(end);
     setNewMessage(newValue);
     setShowEmojiPicker(false);
-    // Mueve el cursor después del emoji
     setTimeout(() => {
       input.focus();
       input.setSelectionRange(start + emojiChar.length, start + emojiChar.length);
@@ -55,7 +54,6 @@ const MessageInput = ({
         'image',
         gif.url // URL del GIF
       );
-      // Hacer scroll hacia abajo después de enviar el GIF
       setTimeout(() => {
         if (messagesListRef?.current?.scrollToBottom) {
           messagesListRef.current.scrollToBottom();
@@ -70,7 +68,6 @@ const MessageInput = ({
 
   // Handler para subir imagen y enviar mensaje
   const handleImageUpload = (files) => {
-    // files: array de File
     const previews = files.slice(0, MAX_IMAGES - imagePreviews.length).map(file => ({
       file,
       url: URL.createObjectURL(file)
@@ -81,7 +78,6 @@ const MessageInput = ({
   // Eliminar una imagen del preview
   const handleRemovePreview = (idx) => {
     setImagePreviews(prev => {
-      // Liberar memoria del objeto URL
       URL.revokeObjectURL(prev[idx].url);
       return prev.filter((_, i) => i !== idx);
     });
@@ -92,11 +88,9 @@ const MessageInput = ({
     e.preventDefault();
     if (!currentConversation) return;
     const recipient = currentConversation.participants.find(p => p._id !== (user?._id || user?.id));
-    // Enviar texto si hay
     if (newMessage.trim()) {
       await handleSendMessage(e);
     }
-    // Enviar imágenes (una por mensaje)
     if (imagePreviews.length > 0) {
       for (const img of imagePreviews) {
         try {
@@ -181,46 +175,19 @@ const MessageInput = ({
           >
             GIF
           </button>
-          {/* Picker de emojis */}
-          {showEmojiPicker && (
-            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 sm:left-auto sm:right-12 sm:translate-x-0">
-              <EmojiPicker
-                onEmojiClick={handleSelectEmoji}
-                theme="dark"
-                width={320}
-                height={400}
-              />
-            </div>
-          )}
-          {/* Picker de GIFs sin botón de volver */}
-          {showGifPicker && (
-            <>
-              {/* Mobile: centrado absoluto con fondo clickeable para cerrar */}
-              <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:hidden" onClick={() => setShowGifPicker(false)}>
-                <div className="mb-20 bg-neutral-900 rounded-xl shadow-lg border border-neutral-800" style={{ width: 400 }} onClick={e => e.stopPropagation()}>
-                  <GifPicker
-                    tenorApiKey={TENOR_API_KEY}
-                    onGifClick={handleSelectGif}
-                    width={400}
-                    height={400}
-                    theme="dark"
-                    autoFocusSearch={true}
-                  />
-                </div>
-              </div>
-              {/* Desktop: posición original a la derecha */}
-              <div className="hidden sm:block absolute bottom-12 right-0 z-50 bg-neutral-900 rounded-xl shadow-lg border border-neutral-800" style={{ width: 400 }}>
-                <GifPicker
-                  tenorApiKey={TENOR_API_KEY}
-                  onGifClick={handleSelectGif}
-                  width={400}
-                  height={400}
-                  theme="dark"
-                  autoFocusSearch={true}
-                />
-              </div>
-            </>
-          )}
+          {/* Picker de emojis como componente aparte */}
+          <EmojiPickerModal
+            open={showEmojiPicker}
+            onClose={() => setShowEmojiPicker(false)}
+            onEmojiSelect={handleSelectEmoji}
+          />
+          {/* Picker de GIFs como componente aparte */}
+          <GifPickerModal
+            open={showGifPicker}
+            onClose={() => setShowGifPicker(false)}
+            onGifSelect={handleSelectGif}
+            tenorApiKey={TENOR_API_KEY}
+          />
         </div>
         <button
           type="submit"
