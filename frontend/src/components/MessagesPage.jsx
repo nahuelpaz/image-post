@@ -118,6 +118,15 @@ const MessagesPage = () => {
     }
   };
 
+  // Efecto para asegurar scroll la PRIMERA vez que se entra a un chat (cuando hay mensajes y no está cargando)
+  useEffect(() => {
+    if (currentConversation && messages.length > 0 && !messagesLoading) {
+      // Solo la primera vez que se entra a un chat diferente
+      messagesListRef.current?.scrollToBottom?.();
+    }
+    // eslint-disable-next-line
+  }, [currentConversation?._id]);
+
   return (
     <div 
       className="h-screen bg-black flex overflow-hidden"

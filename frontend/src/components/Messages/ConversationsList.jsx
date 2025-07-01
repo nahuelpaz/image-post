@@ -74,9 +74,11 @@ const ConversationsList = ({
                 {conversation.lastMessage && (
                   <p className="text-sm text-gray-400 truncate mt-1 flex items-center gap-1">
                     {conversation.lastMessage.sender.username === user?.username ? 'You: ' : ''}
-                    {conversation.lastMessage.messageType === 'image'
-                      ? (<span className="inline-flex items-center gap-1">GIF <ImageIcon className="w-4 h-4 text-gray-400 inline" /></span>)
-                      : conversation.lastMessage.content}
+                    {conversation.lastMessage.messageType === 'image' && conversation.lastMessage.image?.includes('tenor.com')
+                      ? (<span className="inline-flex items-center gap-1">GIF</span>)
+                      : conversation.lastMessage.messageType === 'image'
+                        ? (<span className="inline-flex items-center gap-1">IMAGE <ImageIcon className="w-4 h-4 text-gray-400 inline" /></span>)
+                        : conversation.lastMessage.content}
                   </p>
                 )}
               </div>
