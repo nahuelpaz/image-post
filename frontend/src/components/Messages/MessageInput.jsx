@@ -120,9 +120,9 @@ const MessageInput = ({
           {/* Picker de GIFs sin botón de volver */}
           {showGifPicker && (
             <>
-              {/* Mobile: centrado absoluto */}
-              <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/0 sm:hidden">
-                <div className="mb-20 bg-neutral-900 rounded-xl shadow-lg border border-neutral-800" style={{ width: 400 }}>
+              {/* Mobile: centrado absoluto con fondo clickeable para cerrar */}
+              <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:hidden" onClick={() => setShowGifPicker(false)}>
+                <div className="mb-20 bg-neutral-900 rounded-xl shadow-lg border border-neutral-800" style={{ width: 400 }} onClick={e => e.stopPropagation()}>
                   <GifPicker
                     tenorApiKey={TENOR_API_KEY}
                     onGifClick={handleSelectGif}
