@@ -87,7 +87,8 @@ export const AuthProvider = ({ children }) => {
     ...state,
     login,
     register,
-    logout
+    logout,
+    token: localStorage.getItem('token') // <-- Agrega el token al contexto
   };
 
   return (
