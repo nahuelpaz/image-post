@@ -118,8 +118,22 @@ const MessageInput = ({
           )}
           {/* Picker de GIFs sin botón de volver */}
           {showGifPicker && (
-            <div className="fixed inset-0 z-50 flex items-end sm:items-end justify-center bg-black/0">
-              <div className="mb-20 bg-neutral-900 rounded-xl shadow-lg border border-neutral-800" style={{ width: 400 }}>
+            <>
+              {/* Mobile: centrado absoluto */}
+              <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/0 sm:hidden">
+                <div className="mb-20 bg-neutral-900 rounded-xl shadow-lg border border-neutral-800" style={{ width: 400 }}>
+                  <GifPicker
+                    tenorApiKey={TENOR_API_KEY}
+                    onGifClick={handleSelectGif}
+                    width={400}
+                    height={400}
+                    theme="dark"
+                    autoFocusSearch={true}
+                  />
+                </div>
+              </div>
+              {/* Desktop: posición original a la derecha */}
+              <div className="hidden sm:block absolute bottom-12 right-0 z-50 bg-neutral-900 rounded-xl shadow-lg border border-neutral-800" style={{ width: 400 }}>
                 <GifPicker
                   tenorApiKey={TENOR_API_KEY}
                   onGifClick={handleSelectGif}
@@ -129,7 +143,7 @@ const MessageInput = ({
                   autoFocusSearch={true}
                 />
               </div>
-            </div>
+            </>
           )}
         </div>
         <button
