@@ -1,6 +1,7 @@
 import { User, Check, CheckCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import MessageItem from './MessageItem';
 import AvatarModal from '../Profile/AvatarModal';
 
 const MessagesList = forwardRef(({ 
@@ -10,6 +11,7 @@ const MessagesList = forwardRef(({
   formatMessageTime 
 }, ref) => {
   const [avatarModal, setAvatarModal] = useState({ isOpen: false, src: '', username: '' });
+  const [imageModal, setImageModal] = useState({ isOpen: false, src: '', username: '', fileLabel: 'avatar', fileExt: 'jpg', downloadName: undefined });
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   
@@ -111,77 +113,44 @@ const MessagesList = forwardRef(({
           const isOwn = message.sender._id === user?.id || message.sender._id === user?._id;
           const messageStatus = getMessageStatus(message);
           const isLast = idx === messages.length - 1;
+          // Handler para abrir modal de imagen (avatar o gif)
+          const handleImageClick = (imgSrc, label, ext, downloadName) => {
+            setImageModal({
+              isOpen: true,
+              src: imgSrc,
+              username: message.sender?.username,
+              fileLabel: label,
+              fileExt: ext,
+              downloadName
+            });
+          };
           return (
-            <div
+            <MessageItem
               key={message._id}
-              className={`flex items-start gap-2 ${isOwn ? 'ml-auto' : ''}`}
-            >
-              {/* Avatar */}
-              <button
-                onClick={() => message.sender?.avatar && openAvatarModal(message.sender.avatar, message.sender.username)}
-                className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-blue-600 transition group cursor-pointer mt-0"
-                title={message.sender?.avatar ? `View ${message.sender?.username}'s avatar` : 'No avatar to view'}
-                disabled={!message.sender?.avatar}
-                style={{ alignSelf: 'flex-start' }}
-              >
-                {message.sender?.avatar ? (
-                  <img 
-                    src={message.sender.avatar} 
-                    alt={message.sender.username}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="w-4 h-4 text-gray-600" />
-                )}
-              </button>
-              {/* Mensaje */}
-              <div className="flex flex-col min-h-10 justify-start max-w-xs lg:max-w-md w-full md:w-auto">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <Link
-                    to={`/profile/${message.sender?.username}`}
-                    className="text-xs text-gray-400 font-medium hover:text-white transition-colors truncate max-w-[120px]"
-                    title={`Go to ${message.sender?.username}'s profile`}
-                  >
-                    {message.sender?.username}
-                  </Link>
-                  <p className="text-xs text-gray-500 flex-shrink-0">
-                    {formatMessageTime(message.createdAt)}
-                  </p>
-                </div>
-                {/* Renderiza imagen si es un mensaje de tipo image (GIF o imagen) */}
-                {message.messageType === 'image' && message.image ? (
-                  <img
-                    src={message.image}
-                    alt={message.content || 'GIF'}
-                    className="rounded-xl mb-1 max-w-[70vw] sm:max-w-xs lg:max-w-md"
-                    style={{ maxHeight: 180, width: 'auto', height: 'auto' }}
-                    ref={isLast ? lastGifRef : null}
-                  />
-                ) : (
-                  <p className="text-sm text-white break-words max-w-[70vw] sm:max-w-xs lg:max-w-md">{message.content}</p>
-                )}
-                {/* Solo mostrar checks para mensajes propios */}
-                {isOwn && messageStatus && (
-                  <div className="flex items-center justify-end gap-1 mt-1">
-                    <div className="ml-1">
-                      {renderMessageStatusIcon(messageStatus)}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+              message={message}
+              isOwn={isOwn}
+              messageStatus={messageStatus}
+              isLast={isLast}
+              openAvatarModal={(src, username) => handleImageClick(src, 'avatar', 'jpg', undefined)}
+              formatMessageTime={formatMessageTime}
+              lastGifRef={lastGifRef}
+              // Nuevo: handler para abrir gif
+              openGifModal={(gifSrc) => handleImageClick(gifSrc, 'gif', 'gif', `${message.sender?.username || 'gif'}_message.gif`)}
+            />
           );
         })}
         {/* Elemento invisible para hacer scroll hacia abajo */}
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Modal para ver avatar */}
+      {/* Modal para ver avatar o gif */}
       <AvatarModal
-        isOpen={avatarModal.isOpen}
-        onClose={closeAvatarModal}
-        avatarSrc={avatarModal.src}
-        username={avatarModal.username}
+        isOpen={imageModal.isOpen}
+        onClose={() => setImageModal({ ...imageModal, isOpen: false })}
+        avatarSrc={imageModal.src}
+        username={imageModal.username}
+        fileLabel={imageModal.fileLabel}
+        fileExt={imageModal.fileExt}
+        downloadName={imageModal.downloadName}
       />
     </>
   );

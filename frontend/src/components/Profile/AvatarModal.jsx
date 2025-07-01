@@ -3,7 +3,8 @@ import { saveAs } from 'file-saver';
 import { useState } from 'react';
 import DownloadAlert from '../DownloadAlert';
 
-const AvatarModal = ({ isOpen, onClose, avatarSrc, username }) => {
+// Permite mostrar cualquier imagen (avatar o gif) y personalizar el nombre del archivo
+const AvatarModal = ({ isOpen, onClose, avatarSrc, username, fileLabel = 'avatar', fileExt = 'jpg', downloadName }) => {
   const [downloadAlert, setDownloadAlert] = useState({ show: false, message: '' });
 
   if (!isOpen) return null;
@@ -12,28 +13,23 @@ const AvatarModal = ({ isOpen, onClose, avatarSrc, username }) => {
     try {
       const response = await fetch(avatarSrc);
       const blob = await response.blob();
-      const filename = `${username}_avatar.jpg`;
+      // Usa downloadName si está, si no arma uno por defecto
+      const filename = downloadName || `${username}_${fileLabel}.${fileExt}`;
       saveAs(blob, filename);
-      
-      // Mostrar alerta de descarga exitosa
       setDownloadAlert({
         show: true,
-        message: `${username}'s avatar downloaded successfully`
+        message: `${fileLabel.charAt(0).toUpperCase() + fileLabel.slice(1)} downloaded successfully`
       });
     } catch (error) {
-      console.error('Error downloading avatar:', error);
-      
-      // Mostrar alerta de error
       setDownloadAlert({
         show: true,
-        message: 'Failed to download avatar. Please try again.'
+        message: `Failed to download ${fileLabel}. Please try again.`
       });
     }
   };
 
-  // No mostrar modal si es avatar generado (ui-avatars.com)
-  const isGeneratedAvatar = avatarSrc?.includes('ui-avatars.com');
-
+  // No mostrar modal si es avatar generado (solo si es avatar)
+  const isGeneratedAvatar = fileLabel === 'avatar' && avatarSrc?.includes('ui-avatars.com');
   if (isGeneratedAvatar) return null;
 
   return (
@@ -53,16 +49,16 @@ const AvatarModal = ({ isOpen, onClose, avatarSrc, username }) => {
           <button
             onClick={handleDownload}
             className="absolute -top-12 right-12 text-white hover:text-gray-300 transition-colors z-10"
-            aria-label="Download avatar"
+            aria-label={`Download ${fileLabel}`}
           >
             <ArrowDownToLine className="w-8 h-8" />
           </button>
 
-          {/* Imagen del avatar */}
+          {/* Imagen (avatar o gif) */}
           <div className="relative">
             <img
               src={avatarSrc}
-              alt={`${username}'s avatar`}
+              alt={`${username} ${fileLabel}`}
               className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />
