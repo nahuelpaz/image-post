@@ -4,6 +4,7 @@ const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { upload } = require('../config/cloudinary');
 
 const router = express.Router();
 
@@ -349,6 +350,24 @@ router.get('/unread/count', auth, async (req, res) => {
   } catch (error) {
     console.error('Get unread count error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   POST /api/messages/upload-image
+// @desc    Upload an image for chat messages (Cloudinary)
+router.post('/upload-image', auth, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file || !req.file.path) {
+      return res.status(400).json({ message: 'No image file provided' });
+    }
+    // CloudinaryStorage pone la URL en req.file.path
+    res.json({
+      message: 'Image uploaded successfully',
+      url: req.file.path
+    });
+  } catch (error) {
+    console.error('Message image upload error:', error);
+    res.status(500).json({ message: 'Image upload failed' });
   }
 });
 
