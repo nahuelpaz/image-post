@@ -82,15 +82,35 @@ const MessagesList = forwardRef(({
     }
   };
 
+  // --- Scroll GIF: referencia y efecto para esperar carga del último GIF ---
+  const lastGifRef = useRef(null);
+  // Detectar si el último mensaje es un GIF
+  const lastMessage = messages[messages.length - 1];
+  useEffect(() => {
+    if (lastMessage && lastMessage.messageType === 'image' && lastGifRef.current) {
+      // Si el GIF ya está cargado (por cache), forzar scroll
+      if (lastGifRef.current.complete) {
+        scrollToBottom();
+      }
+      // Si no, esperar a que cargue
+      else {
+        lastGifRef.current.onload = () => {
+          scrollToBottom();
+        };
+      }
+    }
+  }, [messages, currentConversation?._id]);
+
   return (
     <>
       <div 
         ref={messagesContainerRef}
         className="flex-1 flex flex-col space-y-4 px-4"
       >
-        {messages.map((message) => {
+        {messages.map((message, idx) => {
           const isOwn = message.sender._id === user?.id || message.sender._id === user?._id;
           const messageStatus = getMessageStatus(message);
+          const isLast = idx === messages.length - 1;
           return (
             <div
               key={message._id}
@@ -134,6 +154,7 @@ const MessagesList = forwardRef(({
                     alt={message.content || 'GIF'}
                     className="max-w-xs lg:max-w-md rounded-xl mb-1"
                     style={{ maxHeight: 240 }}
+                    ref={isLast ? lastGifRef : null}
                   />
                 ) : (
                   <p className="text-sm text-white break-words">{message.content}</p>
