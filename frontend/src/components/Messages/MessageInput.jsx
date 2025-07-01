@@ -12,7 +12,8 @@ const MessageInput = ({
   handleSendMessage, 
   currentConversation,
   user,
-  sendMessage
+  sendMessage,
+  messagesListRef // Nuevo prop para scroll automático
 }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
@@ -48,6 +49,12 @@ const MessageInput = ({
         'image',
         gif.url // URL del GIF
       );
+      // Hacer scroll hacia abajo después de enviar el GIF
+      setTimeout(() => {
+        if (messagesListRef?.current?.scrollToBottom) {
+          messagesListRef.current.scrollToBottom();
+        }
+      }, 100);
     }
     setShowGifPicker(false);
     setTimeout(() => {
