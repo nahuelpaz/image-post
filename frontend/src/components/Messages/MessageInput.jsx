@@ -40,20 +40,14 @@ const MessageInput = ({
 
   // Inserta el GIF como imagen en el chat
   const handleSelectGif = (gif) => {
-    console.log('GIF seleccionado:', gif);
     if (currentConversation) {
       const recipient = currentConversation.participants.find(p => p._id !== (user?._id || user?.id));
-      console.log('Enviando GIF a:', recipient?._id);
       sendMessage(
         recipient?._id,
         '', // sin texto
         'image',
         gif.url // URL del GIF
-      ).then((res) => {
-        console.log('Respuesta del envío de GIF:', res);
-      }).catch((err) => {
-        console.error('Error al enviar GIF:', err);
-      });
+      );
     }
     setShowGifPicker(false);
     setTimeout(() => {
