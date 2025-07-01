@@ -246,6 +246,7 @@ const MessagesPage = () => {
               currentConversation={currentConversation}
               user={user}
               sendMessage={sendMessage}
+              messagesListRef={messagesListRef} // Pasar ref para scroll automático
             />
           </>
         ) : (
